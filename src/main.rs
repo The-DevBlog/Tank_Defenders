@@ -1,6 +1,7 @@
 mod barracks;
 mod camera;
 mod components;
+mod events;
 mod hud;
 mod map;
 mod resources;
@@ -11,6 +12,7 @@ mod utils;
 use barracks::BarracksPlugin;
 use camera::CameraPlugin;
 use components::*;
+use events::*;
 use hud::HudPlugin;
 use map::MapPlugin;
 use resources::ResourcesPlugin;
@@ -27,11 +29,12 @@ use bevy_rapier3d::{
 };
 
 const MAP_SIZE: f32 = 400.0;
-const UNITS: i32 = 50;
 
 fn main() {
     App::new()
+        .add_event::<PurchaseUnitRequestEv>()
         .add_plugins((
+            EventsPlugin,
             DefaultPlugins,
             CameraPlugin,
             MapPlugin,

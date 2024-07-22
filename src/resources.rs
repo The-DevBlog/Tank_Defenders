@@ -11,8 +11,14 @@ impl Plugin for ResourcesPlugin {
     }
 }
 
-#[derive(Resource, Default, Debug)]
+#[derive(Resource, Debug)]
 pub struct Bank(pub i32);
+
+impl Default for Bank {
+    fn default() -> Self {
+        Bank(1500)
+    }
+}
 
 #[derive(Resource, Default, Debug)]
 pub struct MouseCoords {
