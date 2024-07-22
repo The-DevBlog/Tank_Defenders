@@ -1,0 +1,26 @@
+[package]
+name = "Tanks_Guys"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.14.0"
+bevy-inspector-egui = "0.25.1"
+bevy_mod_billboard = "0.7.0"
+bevy_rapier3d = "0.27.0"
+bevy_rts_camera = "0.8.1"
+
+# Enable a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+opt-level = "z" # for size
+strip = true
+lto = true
