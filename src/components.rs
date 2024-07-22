@@ -9,6 +9,12 @@ pub struct Selected;
 pub struct Speed(pub f32);
 
 #[derive(Component)]
+pub struct Commandable;
+
+#[derive(Component)]
+pub struct Health(pub i32);
+
+#[derive(Component)]
 pub struct Destination(pub Option<Vec3>);
 
 #[derive(Component)]
@@ -38,18 +44,20 @@ pub struct UnitBundle {
     pub unit: Unit,
     pub locked_axis: LockedAxes,
     pub scene_bundle: SceneBundle,
+    pub health: Health,
 }
 
 impl UnitBundle {
     pub fn new(
         name: String,
         speed: f32,
-        size: f32,
+        size: Vec3,
+        health: i32,
         scene: Handle<Scene>,
         translation: Vec3,
     ) -> Self {
         Self {
-            collider: Collider::cuboid(size, size, size),
+            collider: Collider::cuboid(size.x, size.y, size.z),
             damping: Damping {
                 linear_damping: 5.0,
                 ..default()
@@ -60,6 +68,7 @@ impl UnitBundle {
             speed: Speed(speed),
             destination: Destination(None),
             unit: Unit,
+            health: Health(health),
             locked_axis: (LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z),
             scene_bundle: SceneBundle {
                 scene: scene,

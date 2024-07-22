@@ -1,11 +1,13 @@
+use std::process::Command;
+
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier3d::{pipeline::QueryFilter, plugin::RapierContext, render::ColliderDebugColor};
 use bevy_rts_camera::RtsCamera;
 
 use crate::{
     resources::{BoxCoords, GameCommands, MouseCoords},
-    units::set_unit_destination,
-    MapBase, Selected, Unit,
+    soldiers::set_unit_destination,
+    Commandable, MapBase, Selected, Unit,
 };
 
 const GREEN: Hsla = Hsla::hsl(120.0, 0.22, 0.3);
@@ -95,7 +97,8 @@ fn set_mouse_coords(
 pub fn drag_select(
     mut cmds: Commands,
     mut gizmos: Gizmos,
-    unit_q: Query<(Entity, &Transform), With<Unit>>,
+    unit_q: Query<(Entity, &Transform), With<Commandable>>,
+    // unit_q: Query<(Entity, &Transform), With<Unit>>,
     box_coords: Res<BoxCoords>,
     game_cmds: Res<GameCommands>,
 ) {
@@ -148,6 +151,7 @@ pub fn single_select(
     mouse_coords: Res<MouseCoords>,
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
+    commandable_q: Query<&Commandable>,
 ) {
     if !input.just_released(MouseButton::Left) || game_cmds.drag_select {
         return;
@@ -168,17 +172,19 @@ pub fn single_select(
     );
 
     if let Some((ent, _)) = hit {
-        // deselect all currently selected entities
-        for (selected_entity, _) in select_q.iter() {
-            cmds.entity(selected_entity)
-                .insert(ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)))
-                .remove::<Selected>();
-        }
+        if commandable_q.get(ent).is_ok() {
+            // deselect all currently selected entities
+            for (selected_entity, _) in select_q.iter() {
+                cmds.entity(selected_entity)
+                    .insert(ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)))
+                    .remove::<Selected>();
+            }
 
-        // select unit
-        if !select_q.contains(ent) {
-            cmds.entity(ent)
-                .insert((ColliderDebugColor(GREEN), Selected));
+            // select unit
+            if !select_q.contains(ent) {
+                cmds.entity(ent)
+                    .insert((ColliderDebugColor(GREEN), Selected));
+            }
         }
     }
 }

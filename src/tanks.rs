@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::{HealthbarBundle, UnitBundle};
+
 pub struct TanksPlugin;
 
 impl Plugin for TanksPlugin {
@@ -8,15 +10,25 @@ impl Plugin for TanksPlugin {
     }
 }
 
-fn spawn_tank(mut cmds: Commands, assets: Res<AssetServer>) {
-    let tank = (
-        SceneBundle {
-            scene: assets.load("Tank.glb#Scene0"),
-            transform: Transform::from_translation(Vec3::new(50.0, 0.0, 50.0)),
-            ..default()
-        },
-        Name::new("Tank"),
+fn spawn_tank(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<Assets<Mesh>>) {
+    let tank_scene = assets.load("tank.glb#Scene0");
+    let tank = UnitBundle::new(
+        "Tank".to_string(),
+        5000.0,
+        Vec3::new(4., 2., 6.),
+        100,
+        tank_scene,
+        Vec3::new(50.0, 0.0, 50.0),
     );
 
-    cmds.spawn(tank);
+    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
+        tank.scene_bundle.transform.scale.x * 10.0,
+        1.5,
+    )));
+    let healthbar_img = assets.load("imgs/full_health.png");
+    let healthbar = HealthbarBundle::new(Vec3::new(0.0, 10.0, 0.0), healthbar_img, healthbar_mesh);
+
+    cmds.spawn(tank).with_children(|parent| {
+        parent.spawn(healthbar);
+    });
 }

@@ -5,8 +5,8 @@ mod events;
 mod hud;
 mod map;
 mod resources;
+mod soldiers;
 mod tanks;
-mod units;
 mod utils;
 
 use barracks::BarracksPlugin;
@@ -16,8 +16,8 @@ use events::*;
 use hud::HudPlugin;
 use map::MapPlugin;
 use resources::ResourcesPlugin;
+use soldiers::SoldiersPlugin;
 use tanks::TanksPlugin;
-use units::UnitsPlugin;
 use utils::UtilsPlugin;
 
 use bevy::prelude::*;
@@ -32,7 +32,7 @@ const MAP_SIZE: f32 = 400.0;
 
 fn main() {
     App::new()
-        .add_event::<PurchaseUnitRequestEv>()
+        .add_event::<PurchaseSoldierRequestEv>()
         .add_plugins((
             EventsPlugin,
             DefaultPlugins,
@@ -43,7 +43,7 @@ fn main() {
             BarracksPlugin,
             TanksPlugin,
             ResourcesPlugin,
-            UnitsPlugin,
+            SoldiersPlugin,
             UtilsPlugin,
             RapierDebugRenderPlugin::default(),
             RapierPhysicsPlugin::<NoUserData>::default(),

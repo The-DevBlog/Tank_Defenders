@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider};
 
-use crate::{Barracks, BuySoldierBtn, HealthbarBundle, PurchaseUnitRequestEv};
+use crate::{Barracks, BuySoldierBtn, HealthbarBundle, PurchaseSoldierRequestEv};
 
 pub struct BarracksPlugin;
 
@@ -50,7 +50,7 @@ fn buy_soldier_click(
 ) {
     for (interaction, mut _background_clr) in &mut interact_q {
         match *interaction {
-            Interaction::Pressed => cmds.trigger(PurchaseUnitRequestEv::new(50)),
+            Interaction::Pressed => cmds.trigger(PurchaseSoldierRequestEv::new(50)),
             _ => (),
         }
     }
