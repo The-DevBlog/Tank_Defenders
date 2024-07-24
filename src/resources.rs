@@ -7,7 +7,8 @@ impl Plugin for ResourcesPlugin {
         app.init_resource::<Bank>()
             .init_resource::<MouseCoords>()
             .init_resource::<BoxCoords>()
-            .init_resource::<GameCommands>();
+            .init_resource::<GameCommands>()
+            .init_resource::<CustomCursor>();
     }
 }
 
@@ -51,4 +52,30 @@ pub struct GameCommands {
     pub drag_select: bool,
     pub single_select: bool,
     pub selected: bool,
+}
+
+#[derive(Resource)]
+pub struct CustomCursor {
+    pub state: CursorState,
+}
+
+#[derive(PartialEq)]
+pub enum CursorState {
+    Attack,
+    Relocate,
+    Normal,
+}
+
+impl Default for CustomCursor {
+    fn default() -> Self {
+        CustomCursor {
+            state: CursorState::Normal,
+        }
+    }
+}
+
+#[derive(Resource)]
+pub struct Animations {
+    pub animations: Vec<AnimationNodeIndex>,
+    pub graph: Handle<AnimationGraph>,
 }

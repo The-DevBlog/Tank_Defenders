@@ -9,7 +9,16 @@ pub struct Selected;
 pub struct Speed(pub f32);
 
 #[derive(Component)]
-pub struct Commandable;
+pub struct Enemy;
+
+#[derive(Component)]
+pub struct Damage(pub i32);
+
+#[derive(Component)]
+pub struct Target(pub Option<Entity>);
+
+#[derive(Component)]
+pub struct Friendly;
 
 #[derive(Component)]
 pub struct Health(pub i32);
@@ -24,6 +33,9 @@ pub struct Unit;
 pub struct MapBase;
 
 #[derive(Component)]
+pub struct Range(pub f32);
+
+#[derive(Component)]
 pub struct BuySoldierBtn;
 
 #[derive(Component)]
@@ -31,6 +43,9 @@ pub struct BankBalanceTxt;
 
 #[derive(Component)]
 pub struct Barracks;
+
+#[derive(Component)]
+pub struct FireRate(pub Timer);
 
 #[derive(Bundle)]
 pub struct UnitBundle {
@@ -42,17 +57,23 @@ pub struct UnitBundle {
     pub speed: Speed,
     pub destination: Destination,
     pub unit: Unit,
+    pub target: Target,
     pub locked_axis: LockedAxes,
     pub scene_bundle: SceneBundle,
     pub health: Health,
+    pub range: Range,
+    pub damage: Damage,
+    pub fire_rate: FireRate,
 }
 
 impl UnitBundle {
     pub fn new(
         name: String,
         speed: f32,
+        damage: i32,
         size: Vec3,
         health: i32,
+        fire_rate: Timer,
         scene: Handle<Scene>,
         translation: Vec3,
     ) -> Self {
@@ -66,8 +87,12 @@ impl UnitBundle {
             name: Name::new(name),
             rigid_body: RigidBody::Dynamic,
             speed: Speed(speed),
+            target: Target(None),
+            damage: Damage(damage),
             destination: Destination(None),
             unit: Unit,
+            fire_rate: FireRate(fire_rate),
+            range: Range(50.0),
             health: Health(health),
             locked_axis: (LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z),
             scene_bundle: SceneBundle {
