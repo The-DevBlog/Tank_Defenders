@@ -59,6 +59,7 @@ pub struct CustomCursor {
     pub state: CursorState,
 }
 
+#[derive(PartialEq)]
 pub enum CursorState {
     Attack,
     Relocate,
@@ -71,4 +72,10 @@ impl Default for CustomCursor {
             state: CursorState::Normal,
         }
     }
+}
+
+#[derive(Resource)]
+pub struct Animations {
+    pub animations: Vec<AnimationNodeIndex>,
+    pub graph: Handle<AnimationGraph>,
 }

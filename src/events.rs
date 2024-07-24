@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    resources::{Bank, CustomCursor},
+    resources::{Animations, Bank, CustomCursor},
     BankBalanceTxt, Barracks, Friendly, HealthbarBundle, UnitBundle,
 };
 
@@ -71,20 +71,39 @@ fn build_unit(
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut cmds: Commands,
+    mut graphs: ResMut<Assets<AnimationGraph>>,
 ) {
     let Ok(barracks_transform) = barracks_q.get_single() else {
         return;
     };
 
+    let mut graph = AnimationGraph::new();
+    let animations = graph
+        .add_clips(
+            [GltfAssetLabel::Animation(0).from_asset("soldier_animations.glb")]
+                .into_iter()
+                .map(|path| assets.load(path)),
+            1.0,
+            graph.root,
+        )
+        .collect();
+
+    let graph = graphs.add(graph);
+    cmds.insert_resource(Animations {
+        animations,
+        graph: graph.clone(),
+    });
+
     let pos = barracks_transform.translation;
-    let soldier_scene = assets.load("soldier.glb#Scene0");
+    let soldier_scene = assets.load("soldier_animations.glb#Scene0");
     let mut soldier = (
         UnitBundle::new(
             "Soldier".to_string(),
             5000.0,
-            25,
+            1,
             Vec3::new(2., 2., 2.),
             50,
+            Timer::from_seconds(0.25, TimerMode::Repeating),
             soldier_scene,
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),

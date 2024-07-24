@@ -15,7 +15,7 @@ impl Plugin for BarracksPlugin {
 fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<Assets<Mesh>>) {
     let barracks = (
         SceneBundle {
-            scene: assets.load("Barracks.glb#Scene0"),
+            scene: assets.load("barracks.glb#Scene0"),
             transform: Transform {
                 translation: Vec3::new(110.0, 0.0, -80.0),
                 rotation: Quat::from_euler(EulerRot::XYZ, 0.0, -1.1, 0.0),

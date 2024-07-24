@@ -44,6 +44,9 @@ pub struct BankBalanceTxt;
 #[derive(Component)]
 pub struct Barracks;
 
+#[derive(Component)]
+pub struct FireRate(pub Timer);
+
 #[derive(Bundle)]
 pub struct UnitBundle {
     pub collider: Collider,
@@ -60,6 +63,7 @@ pub struct UnitBundle {
     pub health: Health,
     pub range: Range,
     pub damage: Damage,
+    pub fire_rate: FireRate,
 }
 
 impl UnitBundle {
@@ -69,6 +73,7 @@ impl UnitBundle {
         damage: i32,
         size: Vec3,
         health: i32,
+        fire_rate: Timer,
         scene: Handle<Scene>,
         translation: Vec3,
     ) -> Self {
@@ -86,7 +91,8 @@ impl UnitBundle {
             damage: Damage(damage),
             destination: Destination(None),
             unit: Unit,
-            range: Range(25.0),
+            fire_rate: FireRate(fire_rate),
+            range: Range(50.0),
             health: Health(health),
             locked_axis: (LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z),
             scene_bundle: SceneBundle {

@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
 use crate::{
-    resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Damage, Destination, Enemy, Friendly, Health, HealthbarBundle, Selected, Speed, Target, Unit,
-    UnitBundle,
+    resources::{Animations, CursorState, CustomCursor, GameCommands, MouseCoords},
+    Damage, Destination, Enemy, FireRate, Friendly, Health, HealthbarBundle, Range, Selected,
+    Speed, Target, Unit, UnitBundle,
 };
 
 pub struct SoldiersPlugin;
@@ -18,15 +18,38 @@ impl Plugin for SoldiersPlugin {
     }
 }
 
-fn spawn_soldier(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<Assets<Mesh>>) {
-    let soldier_scene = assets.load("soldier.glb#Scene0");
+fn spawn_soldier(
+    mut cmds: Commands,
+    assets: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut graphs: ResMut<Assets<AnimationGraph>>,
+) {
+    let mut graph = AnimationGraph::new();
+    let animations = graph
+        .add_clips(
+            [GltfAssetLabel::Animation(0).from_asset("soldier_animations.glb")]
+                .into_iter()
+                .map(|path| assets.load(path)),
+            1.0,
+            graph.root,
+        )
+        .collect();
+
+    let graph = graphs.add(graph);
+    cmds.insert_resource(Animations {
+        animations,
+        graph: graph.clone(),
+    });
+
+    let soldier_scene = assets.load("soldier_animations.glb#Scene0");
     let soldier = (
         UnitBundle::new(
             "Soldier".to_string(),
             5000.,
-            3,
+            1,
             Vec3::new(2., 2., 2.),
             50,
+            Timer::from_seconds(0.25, TimerMode::Repeating),
             soldier_scene,
             Vec3::new(0.0, 1., 0.0),
         ),
@@ -47,15 +70,20 @@ fn spawn_soldier(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMu
 
 pub fn set_unit_destination(
     mouse_coords: ResMut<MouseCoords>,
-    mut unit_q: Query<(&mut Destination, &Transform), With<Selected>>,
+    mut friendly_q: Query<(&mut Destination, &mut Target, &Transform), With<Selected>>,
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
+    cursor: Res<CustomCursor>,
 ) {
     if !input.just_released(MouseButton::Left) || game_cmds.drag_select {
         return;
     }
 
-    for (mut unit_destination, trans) in unit_q.iter_mut() {
+    for (mut unit_destination, mut target, trans) in friendly_q.iter_mut() {
+        if cursor.state == CursorState::Relocate {
+            target.0 = None;
+        }
+
         let mut destination = mouse_coords.global;
         destination.y += trans.scale.y / 2.0; // calculate for entity height
         unit_destination.0 = Some(destination);
@@ -80,7 +108,7 @@ fn move_unit(
             let distance = new_pos - trans.translation;
             if distance.length_squared() <= 5.0 {
                 destination.0 = None;
-                println!("Unit Stopping");
+                // println!("Unit Stopping");
             } else {
                 // Calculate the direction vector on the XZ plane
                 let direction = Vec3::new(distance.x, 0.0, distance.z).normalize();
@@ -148,19 +176,58 @@ fn command_attack(
 
 fn attack(
     mut cmds: Commands,
-    mut friendly_q: Query<(&Damage, &mut Target), With<Friendly>>,
+    mut friendly_q: Query<
+        (
+            &Damage,
+            &Range,
+            &Transform,
+            &mut Destination,
+            &mut Target,
+            &mut FireRate,
+        ),
+        With<Friendly>,
+    >,
+    time: Res<Time>,
     mut health_q: Query<&mut Health>,
+    enemy_transform_q: Query<&Transform>,
+    mut animation_players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
 ) {
-    for (damage, target) in friendly_q.iter_mut() {
+    for (damage, range, transform, mut destination, target, mut fire_rate) in friendly_q.iter_mut()
+    {
         if let Some(target_ent) = target.0 {
-            if let Ok(mut health) = health_q.get_mut(target_ent) {
-                println!("health: {}", health.0);
+            let Ok(enemy_transform) = enemy_transform_q.get(target_ent) else {
+                return;
+            };
 
-                health.0 -= damage.0;
+            // only attack when enemy is in range
+            let distance = (transform.translation - enemy_transform.translation).length();
+            if distance <= range.0 {
+                destination.0 = None;
+                fire_rate.0.tick(time.delta());
 
-                // despawn tank if health < 0
-                if health.0 < 0 {
-                    cmds.entity(target_ent).despawn_recursive();
+                //  play animation
+                for (mut player, mut transitions) in &mut animation_players {
+                    let Some((&playing_animation_index, _)) = player.playing_animations().next()
+                    else {
+                        continue;
+                    };
+
+                    let shooting_animation = player.animation_mut(playing_animation_index).unwrap();
+                    shooting_animation.repeat();
+                }
+
+                if !fire_rate.0.finished() {
+                    return;
+                }
+
+                if let Ok(mut health) = health_q.get_mut(target_ent) {
+                    println!("Tank Health: {}", health.0);
+                    health.0 -= damage.0;
+
+                    // despawn tank if health < 0
+                    if health.0 < 0 {
+                        cmds.entity(target_ent).despawn_recursive();
+                    }
                 }
             }
         }

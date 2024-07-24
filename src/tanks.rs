@@ -19,6 +19,7 @@ fn spawn_tank(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<A
             50,
             Vec3::new(4., 2., 6.),
             1000,
+            Timer::from_seconds(1.0, TimerMode::Repeating),
             tank_scene,
             Vec3::new(50.0, 0.0, 50.0),
         ),
