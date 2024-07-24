@@ -9,7 +9,16 @@ pub struct Selected;
 pub struct Speed(pub f32);
 
 #[derive(Component)]
-pub struct Commandable;
+pub struct Enemy;
+
+#[derive(Component)]
+pub struct Damage(pub i32);
+
+#[derive(Component)]
+pub struct Target(pub Option<Entity>);
+
+#[derive(Component)]
+pub struct Friendly;
 
 #[derive(Component)]
 pub struct Health(pub i32);
@@ -22,6 +31,9 @@ pub struct Unit;
 
 #[derive(Component)]
 pub struct MapBase;
+
+#[derive(Component)]
+pub struct Range(pub f32);
 
 #[derive(Component)]
 pub struct BuySoldierBtn;
@@ -42,15 +54,19 @@ pub struct UnitBundle {
     pub speed: Speed,
     pub destination: Destination,
     pub unit: Unit,
+    pub target: Target,
     pub locked_axis: LockedAxes,
     pub scene_bundle: SceneBundle,
     pub health: Health,
+    pub range: Range,
+    pub damage: Damage,
 }
 
 impl UnitBundle {
     pub fn new(
         name: String,
         speed: f32,
+        damage: i32,
         size: Vec3,
         health: i32,
         scene: Handle<Scene>,
@@ -66,8 +82,11 @@ impl UnitBundle {
             name: Name::new(name),
             rigid_body: RigidBody::Dynamic,
             speed: Speed(speed),
+            target: Target(None),
+            damage: Damage(damage),
             destination: Destination(None),
             unit: Unit,
+            range: Range(25.0),
             health: Health(health),
             locked_axis: (LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z),
             scene_bundle: SceneBundle {

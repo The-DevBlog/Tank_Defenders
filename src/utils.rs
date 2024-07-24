@@ -1,13 +1,11 @@
-use std::process::Command;
-
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier3d::{pipeline::QueryFilter, plugin::RapierContext, render::ColliderDebugColor};
 use bevy_rts_camera::RtsCamera;
 
 use crate::{
-    resources::{BoxCoords, GameCommands, MouseCoords},
+    resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords},
     soldiers::set_unit_destination,
-    Commandable, MapBase, Selected, Unit,
+    Friendly, MapBase, Selected,
 };
 
 const GREEN: Hsla = Hsla::hsl(120.0, 0.22, 0.3);
@@ -29,7 +27,8 @@ impl Plugin for UtilsPlugin {
             )
                 .chain()
                 .after(set_unit_destination),
-        );
+        )
+        .add_systems(Update, change_cursor);
     }
 }
 
@@ -97,8 +96,7 @@ fn set_mouse_coords(
 pub fn drag_select(
     mut cmds: Commands,
     mut gizmos: Gizmos,
-    unit_q: Query<(Entity, &Transform), With<Commandable>>,
-    // unit_q: Query<(Entity, &Transform), With<Unit>>,
+    unit_q: Query<(Entity, &Transform), With<Friendly>>,
     box_coords: Res<BoxCoords>,
     game_cmds: Res<GameCommands>,
 ) {
@@ -151,7 +149,7 @@ pub fn single_select(
     mouse_coords: Res<MouseCoords>,
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
-    commandable_q: Query<&Commandable>,
+    commandable_q: Query<&Friendly>,
 ) {
     if !input.just_released(MouseButton::Left) || game_cmds.drag_select {
         return;
@@ -205,5 +203,15 @@ pub fn deselect_all(
 }
 
 fn set_selected(mut game_cmds: ResMut<GameCommands>, select_q: Query<&Selected>) {
-    game_cmds.selected = !select_q.is_empty();
+    let selected = !select_q.is_empty();
+    game_cmds.selected = selected;
+}
+
+fn change_cursor(mut window_q: Query<&mut Window, With<PrimaryWindow>>, cursor: Res<CustomCursor>) {
+    let mut window = window_q.get_single_mut().unwrap();
+    match cursor.state {
+        CursorState::Attack => window.cursor.icon = CursorIcon::Crosshair,
+        CursorState::Relocate => window.cursor.icon = CursorIcon::Pointer,
+        CursorState::Normal => window.cursor.icon = CursorIcon::Default,
+    }
 }

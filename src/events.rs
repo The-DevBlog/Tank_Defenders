@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{resources::Bank, BankBalanceTxt, Barracks, Commandable, HealthbarBundle, UnitBundle};
+use crate::{
+    resources::{Bank, CustomCursor},
+    BankBalanceTxt, Barracks, Friendly, HealthbarBundle, UnitBundle,
+};
 
 pub struct EventsPlugin;
 
@@ -79,12 +82,13 @@ fn build_unit(
         UnitBundle::new(
             "Soldier".to_string(),
             5000.0,
+            25,
             Vec3::new(2., 2., 2.),
             50,
             soldier_scene,
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
-        Commandable,
+        Friendly,
     );
 
     soldier.0.destination.0 = Some(Vec3::new(pos.x - 100.0, 1.0, pos.z + 60.0));

@@ -2,16 +2,19 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
 use crate::{
-    resources::{GameCommands, MouseCoords},
-    Commandable, Destination, HealthbarBundle, Selected, Speed, Unit, UnitBundle,
+    resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
+    Damage, Destination, Enemy, Friendly, Health, HealthbarBundle, Selected, Speed, Target, Unit,
+    UnitBundle,
 };
 
 pub struct SoldiersPlugin;
 
 impl Plugin for SoldiersPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_soldier)
-            .add_systems(Update, (set_unit_destination, move_unit));
+        app.add_systems(Startup, spawn_soldier).add_systems(
+            Update,
+            (set_unit_destination, move_unit, command_attack, attack),
+        );
     }
 }
 
@@ -21,12 +24,13 @@ fn spawn_soldier(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMu
         UnitBundle::new(
             "Soldier".to_string(),
             5000.,
+            3,
             Vec3::new(2., 2., 2.),
             50,
             soldier_scene,
             Vec3::new(0.0, 1., 0.0),
         ),
-        Commandable,
+        Friendly,
     );
 
     let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
@@ -90,6 +94,74 @@ fn move_unit(
 
                 // Update the unit's rotation to face the direction
                 trans.rotation = target_rotation;
+            }
+        }
+    }
+}
+
+fn command_attack(
+    rapier_context: Res<RapierContext>,
+    select_q: Query<Entity, With<Selected>>,
+    enemy_q: Query<Entity, With<Enemy>>,
+    cam_q: Query<(&Camera, &GlobalTransform)>,
+    mouse_coords: Res<MouseCoords>,
+    input: Res<ButtonInput<MouseButton>>,
+    mut cursor: ResMut<CustomCursor>,
+    mut cmds: Commands,
+) {
+    if select_q.is_empty() {
+        cursor.state = CursorState::Normal;
+        return;
+    }
+
+    let (cam, cam_trans) = cam_q.single();
+
+    let Some(ray) = cam.viewport_to_world(cam_trans, mouse_coords.local) else {
+        return;
+    };
+
+    let hit = rapier_context.cast_ray(
+        ray.origin,
+        ray.direction.into(),
+        f32::MAX,
+        true,
+        QueryFilter::only_dynamic(),
+    );
+
+    if let Some((enemy_ent, _)) = hit {
+        // if ray is cast onto enemy
+        if enemy_q.get(enemy_ent).is_ok() {
+            cursor.state = CursorState::Attack;
+
+            // if enemy is clicked, command friendlies to attack
+            if input.just_pressed(MouseButton::Left) {
+                for friendly_ent in select_q.iter() {
+                    cmds.entity(friendly_ent).insert(Target(Some(enemy_ent)));
+                }
+            }
+            return;
+        }
+    }
+
+    cursor.state = CursorState::Relocate;
+}
+
+fn attack(
+    mut cmds: Commands,
+    mut friendly_q: Query<(&Damage, &mut Target), With<Friendly>>,
+    mut health_q: Query<&mut Health>,
+) {
+    for (damage, target) in friendly_q.iter_mut() {
+        if let Some(target_ent) = target.0 {
+            if let Ok(mut health) = health_q.get_mut(target_ent) {
+                println!("health: {}", health.0);
+
+                health.0 -= damage.0;
+
+                // despawn tank if health < 0
+                if health.0 < 0 {
+                    cmds.entity(target_ent).despawn_recursive();
+                }
             }
         }
     }
