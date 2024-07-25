@@ -16,9 +16,9 @@ fn spawn_tank(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<A
         UnitBundle::new(
             "Tank".to_string(),
             5000.0,
-            50,
+            50.0,
             Vec3::new(4., 2., 6.),
-            1000,
+            100.0,
             Timer::from_seconds(1.0, TimerMode::Repeating),
             tank_scene,
             Vec3::new(50.0, 0.0, 50.0),
@@ -26,12 +26,15 @@ fn spawn_tank(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<A
         Enemy,
     );
 
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
-        tank.0.scene_bundle.transform.scale.x * 10.0,
-        1.5,
-    )));
+    let healthbar_width = 10.0;
+    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(healthbar_width, 1.5)));
     let healthbar_img = assets.load("imgs/full_health.png");
-    let healthbar = HealthbarBundle::new(Vec3::new(0.0, 10.0, 0.0), healthbar_img, healthbar_mesh);
+    let healthbar = HealthbarBundle::new(
+        healthbar_width,
+        Vec3::new(0.0, 10.0, 0.0),
+        healthbar_img,
+        healthbar_mesh,
+    );
 
     cmds.spawn(tank).with_children(|parent| {
         parent.spawn(healthbar);

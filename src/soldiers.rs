@@ -3,8 +3,8 @@ use bevy_rapier3d::prelude::*;
 
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health, Range, Selected,
-    Speed, Target, Unit,
+    Action, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health, InvokeDamage,
+    Range, Selected, Speed, Target, Unit,
 };
 
 pub struct SoldiersPlugin;
@@ -159,16 +159,16 @@ fn attack(
                 fire_rate.0.tick(time.delta());
                 current_action.0 = Action::Attack;
 
-                if !fire_rate.0.finished() {
-                    return;
-                }
-
                 if let Ok(mut health) = health_q.get_mut(target_ent) {
+                    if !fire_rate.0.finished() {
+                        return;
+                    }
                     // println!("Tank Health: {}", health.0);
-                    health.0 -= damage.0;
+                    cmds.trigger(InvokeDamage::new(damage.0, target_ent));
+                    health.current -= damage.0;
 
                     // despawn tank if health < 0
-                    if health.0 < 0 {
+                    if health.current < 0.0 {
                         cmds.entity(target_ent).despawn_recursive();
                     }
                 }
@@ -176,5 +176,5 @@ fn attack(
         }
     }
 
-    println!("{} units attacking a tank", count);
+    // println!("{} units attacking a tank", count);
 }

@@ -14,7 +14,7 @@ pub struct Speed(pub f32);
 pub struct Enemy;
 
 #[derive(Component)]
-pub struct Damage(pub i32);
+pub struct Damage(pub f32);
 
 #[derive(Component)]
 pub struct Target(pub Option<Entity>);
@@ -23,7 +23,10 @@ pub struct Target(pub Option<Entity>);
 pub struct Friendly;
 
 #[derive(Component)]
-pub struct Health(pub i32);
+pub struct Health {
+    pub current: f32,
+    pub original: f32,
+}
 
 #[derive(Component)]
 pub struct Destination(pub Option<Vec3>);
@@ -83,9 +86,9 @@ impl UnitBundle {
     pub fn new(
         name: String,
         speed: f32,
-        damage: i32,
+        damage: f32,
         size: Vec3,
-        health: i32,
+        health: f32,
         fire_rate: Timer,
         scene: Handle<Scene>,
         translation: Vec3,
@@ -106,7 +109,10 @@ impl UnitBundle {
             unit: Unit,
             fire_rate: FireRate(fire_rate),
             range: Range(50.0),
-            health: Health(health),
+            health: Health {
+                current: health,
+                original: health,
+            },
             current_action: CurrentAction(Action::None),
             locked_axis: (LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z),
             scene_bundle: SceneBundle {
@@ -121,20 +127,36 @@ impl UnitBundle {
     }
 }
 
+#[derive(Component)]
+pub struct Healthbar {
+    pub width: f32,
+    pub y_position: f32,
+}
+
+// #[derive(Component)]
+// pub struct HealthbarWidth(pub f32);
+
 #[derive(Bundle)]
 pub struct HealthbarBundle {
     pub texture: BillboardTextureBundle,
     pub name: Name,
+    pub healthbar: Healthbar,
+    // pub width: HealthbarWidth,
 }
 
 impl HealthbarBundle {
-    pub fn new(translation: Vec3, img: Handle<Image>, mesh: Handle<Mesh>) -> Self {
+    pub fn new(width: f32, translation: Vec3, img: Handle<Image>, mesh: Handle<Mesh>) -> Self {
         Self {
             texture: BillboardTextureBundle {
                 transform: Transform::from_translation(translation),
                 texture: BillboardTextureHandle(img),
                 mesh: BillboardMeshHandle(mesh),
                 ..default()
+            },
+            // width: HealthbarWidth(width),
+            healthbar: Healthbar {
+                width: width,
+                y_position: translation.y,
             },
             name: Name::new("Healthbar"),
         }

@@ -8,8 +8,15 @@ impl Plugin for ResourcesPlugin {
             .init_resource::<MouseCoords>()
             .init_resource::<BoxCoords>()
             .init_resource::<GameCommands>()
-            .init_resource::<CustomCursor>();
+            .init_resource::<CustomCursor>()
+            .init_resource::<MyAssets>()
+            .add_systems(Startup, setup);
     }
+}
+
+#[derive(Resource, Default, Debug)]
+pub struct MyAssets {
+    pub full_health: Handle<Image>,
 }
 
 #[derive(Resource, Debug)]
@@ -78,4 +85,8 @@ impl Default for CustomCursor {
 pub struct Animations {
     pub animations: Vec<AnimationNodeIndex>,
     pub graph: Handle<AnimationGraph>,
+}
+
+fn setup(mut my_assets: ResMut<MyAssets>, assets: Res<AssetServer>) {
+    my_assets.full_health = assets.load("imgs/full_health.png");
 }

@@ -29,12 +29,15 @@ fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResM
         Name::new("Barracks"),
     );
 
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
-        barracks.0.transform.scale.x * 45.0,
-        2.5,
-    )));
+    let healthbar_width = 45.0;
+    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(healthbar_width, 2.5)));
     let healthbar_img = assets.load("imgs/full_health.png");
-    let healthbar = HealthbarBundle::new(Vec3::new(0.0, 22.5, 0.0), healthbar_img, healthbar_mesh);
+    let healthbar = HealthbarBundle::new(
+        healthbar_width,
+        Vec3::new(0.0, 22.5, 0.0),
+        healthbar_img,
+        healthbar_mesh,
+    );
 
     cmds.spawn(barracks).with_children(|parent| {
         parent.spawn(healthbar);
