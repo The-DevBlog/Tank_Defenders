@@ -1,9 +1,8 @@
 use bevy::prelude::*;
-use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle};
 
 use crate::{
-    resources::Bank, BankBalanceTxt, Barracks, Friendly, Health, Healthbar, HealthbarBundle,
-    HealthbarWidth, Unit, UnitBundle,
+    resources::{Bank, MyAssets},
+    BankBalanceTxt, Barracks, Friendly, Health, Healthbar, HealthbarBundle, Unit, UnitBundle,
 };
 
 pub struct EventsPlugin;
@@ -30,8 +29,14 @@ impl UpdateBankBalanceEv {
 
 #[derive(Event)]
 pub struct InvokeDamage {
-    pub amount: i32,
+    pub amount: f32,
     pub target: Entity,
+}
+
+impl InvokeDamage {
+    pub fn new(amount: f32, target: Entity) -> Self {
+        Self { amount, target }
+    }
 }
 
 #[derive(Event)]
@@ -90,7 +95,7 @@ fn build_unit(
         UnitBundle::new(
             "Soldier".to_string(),
             5000.0,
-            1.0,
+            5.0,
             Vec3::new(2., 2., 2.),
             50.0,
             Timer::from_seconds(0.25, TimerMode::Repeating),
@@ -119,31 +124,35 @@ fn build_unit(
 }
 
 fn update_healthbar(
-    // mut healthbar_q: Query<&mut BillboardMeshHandle, With<Healthbar>>,
     trigger: Trigger<InvokeDamage>,
-    mut health_q: Query<(&Health, &HealthbarWidth)>,
-    // mut BillboardMeshHandle,
+    health_q: Query<&Health>,
+    healthbar_q: Query<&Healthbar>,
+    mut cmds: Commands,
+    children_q: Query<&Children>,
     mut meshes: ResMut<Assets<Mesh>>,
+    my_assets: Res<MyAssets>,
 ) {
-    let Ok((health, healthbar_width)) = health_q.get(trigger.event().target) else {
+    let Ok(health) = health_q.get(trigger.event().target) else {
         return;
     };
+    // println!("HEALTH:  {}", health.original);
 
-    let width = healthbar_width.0 / (health.original / health.current);
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(width, 1.0)));
+    for child in children_q.iter_descendants(trigger.event().target) {
+        if let Ok(healthbar) = healthbar_q.get(child) {
+            let width = healthbar.width / (health.original / health.current);
+            let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(width, 1.5)));
+            let healthbar_img = my_assets.full_health.clone();
+            let new_healthbar = HealthbarBundle::new(
+                healthbar.width,
+                Vec3::new(0.0, healthbar.y_position, 0.0),
+                healthbar_img,
+                healthbar_mesh,
+            );
+
+            cmds.entity(child).despawn();
+            cmds.entity(trigger.event().target).with_children(|parent| {
+                parent.spawn(new_healthbar);
+            });
+        }
+    }
 }
-
-// fn update_healthbar(
-//     trigger: Trigger<InvokeDamage>,
-//     mut health_q: Query<(&Health, &HealthbarWidth)>,
-//     mut healthbar_width: Query<&HealthbarWidth>,
-//     mut BillboardMeshHandle
-//     mut meshes: ResMut<Assets<Mesh>>,
-// ) {
-//     let Ok((health, healthbar_width)) = health_q.get(trigger.event().target) else {
-//         return;
-//     };
-
-//     let width = healthbar_width.0 / (health.original / health.current);
-//     let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(width, 1.0)));
-// }

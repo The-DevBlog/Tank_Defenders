@@ -128,17 +128,20 @@ impl UnitBundle {
 }
 
 #[derive(Component)]
-pub struct Healthbar;
+pub struct Healthbar {
+    pub width: f32,
+    pub y_position: f32,
+}
 
-#[derive(Component)]
-pub struct HealthbarWidth(pub f32);
+// #[derive(Component)]
+// pub struct HealthbarWidth(pub f32);
 
 #[derive(Bundle)]
 pub struct HealthbarBundle {
     pub texture: BillboardTextureBundle,
     pub name: Name,
     pub healthbar: Healthbar,
-    pub width: HealthbarWidth,
+    // pub width: HealthbarWidth,
 }
 
 impl HealthbarBundle {
@@ -150,8 +153,11 @@ impl HealthbarBundle {
                 mesh: BillboardMeshHandle(mesh),
                 ..default()
             },
-            width: HealthbarWidth(width),
-            healthbar: Healthbar,
+            // width: HealthbarWidth(width),
+            healthbar: Healthbar {
+                width: width,
+                y_position: translation.y,
+            },
             name: Name::new("Healthbar"),
         }
     }
