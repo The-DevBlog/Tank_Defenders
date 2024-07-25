@@ -165,10 +165,10 @@ fn attack(
 
                 if let Ok(mut health) = health_q.get_mut(target_ent) {
                     // println!("Tank Health: {}", health.0);
-                    health.0 -= damage.0;
+                    health.current -= damage.0;
 
                     // despawn tank if health < 0
-                    if health.0 < 0 {
+                    if health.current < 0.0 {
                         cmds.entity(target_ent).despawn_recursive();
                     }
                 }
@@ -176,5 +176,5 @@ fn attack(
         }
     }
 
-    println!("{} units attacking a tank", count);
+    // println!("{} units attacking a tank", count);
 }
