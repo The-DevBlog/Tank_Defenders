@@ -141,6 +141,7 @@ fn attack(
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
     enemy_transform_q: Query<&Transform>,
+    assets: Res<AssetServer>,
 ) {
     let mut count = 0.0;
     for (damage, range, transform, mut destination, target, mut fire_rate, mut current_action) in
