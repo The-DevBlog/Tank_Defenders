@@ -1,3 +1,4 @@
+mod animation_controller;
 mod barracks;
 mod camera;
 mod components;
@@ -9,8 +10,7 @@ mod soldiers;
 mod tanks;
 mod utils;
 
-use std::time::Duration;
-
+use animation_controller::AnimationControllerPlugin;
 use barracks::BarracksPlugin;
 use camera::CameraPlugin;
 use components::*;
@@ -29,7 +29,6 @@ use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-
 const MAP_SIZE: f32 = 400.0;
 
 fn main() {
@@ -43,6 +42,7 @@ fn main() {
             HudPlugin,
             BillboardPlugin,
             BarracksPlugin,
+            AnimationControllerPlugin,
             TanksPlugin,
             ResourcesPlugin,
             SoldiersPlugin,
@@ -51,21 +51,5 @@ fn main() {
             RapierPhysicsPlugin::<NoUserData>::default(),
             WorldInspectorPlugin::new(),
         ))
-        .add_systems(Update, setup.before(animate_targets))
         .run();
-}
-
-fn setup(
-    mut cmds: Commands,
-    animations: Res<Animations>,
-    mut players: Query<(Entity, &mut AnimationPlayer), Added<AnimationPlayer>>,
-) {
-    for (ent, mut player) in &mut players {
-        let mut transitions = AnimationTransitions::new();
-        transitions.play(&mut player, animations.animations[0], Duration::ZERO);
-
-        cmds.entity(ent)
-            .insert(animations.graph.clone())
-            .insert(transitions);
-    }
 }

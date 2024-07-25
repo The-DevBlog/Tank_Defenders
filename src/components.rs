@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle};
+use bevy_mod_billboard::{
+    Billboard, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
+};
 use bevy_rapier3d::prelude::*;
 
 #[derive(Component)]
@@ -47,6 +49,16 @@ pub struct Barracks;
 #[derive(Component)]
 pub struct FireRate(pub Timer);
 
+#[derive(Component, Debug)]
+pub struct CurrentAction(pub Action);
+
+#[derive(Debug)]
+pub enum Action {
+    Attack,
+    Relocate,
+    None,
+}
+
 #[derive(Bundle)]
 pub struct UnitBundle {
     pub collider: Collider,
@@ -64,6 +76,7 @@ pub struct UnitBundle {
     pub range: Range,
     pub damage: Damage,
     pub fire_rate: FireRate,
+    pub current_action: CurrentAction,
 }
 
 impl UnitBundle {
@@ -94,6 +107,7 @@ impl UnitBundle {
             fire_rate: FireRate(fire_rate),
             range: Range(50.0),
             health: Health(health),
+            current_action: CurrentAction(Action::None),
             locked_axis: (LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z),
             scene_bundle: SceneBundle {
                 scene: scene,

@@ -2,70 +2,20 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
 use crate::{
-    resources::{Animations, CursorState, CustomCursor, GameCommands, MouseCoords},
-    Damage, Destination, Enemy, FireRate, Friendly, Health, HealthbarBundle, Range, Selected,
-    Speed, Target, Unit, UnitBundle,
+    resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
+    Action, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health, Range, Selected,
+    Speed, Target, Unit,
 };
 
 pub struct SoldiersPlugin;
 
 impl Plugin for SoldiersPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_soldier).add_systems(
+        app.add_systems(
             Update,
             (set_unit_destination, move_unit, command_attack, attack),
         );
     }
-}
-
-fn spawn_soldier(
-    mut cmds: Commands,
-    assets: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut graphs: ResMut<Assets<AnimationGraph>>,
-) {
-    let mut graph = AnimationGraph::new();
-    let animations = graph
-        .add_clips(
-            [GltfAssetLabel::Animation(0).from_asset("soldier_animations.glb")]
-                .into_iter()
-                .map(|path| assets.load(path)),
-            1.0,
-            graph.root,
-        )
-        .collect();
-
-    let graph = graphs.add(graph);
-    cmds.insert_resource(Animations {
-        animations,
-        graph: graph.clone(),
-    });
-
-    let soldier_scene = assets.load("soldier_animations.glb#Scene0");
-    let soldier = (
-        UnitBundle::new(
-            "Soldier".to_string(),
-            5000.,
-            1,
-            Vec3::new(2., 2., 2.),
-            50,
-            Timer::from_seconds(0.25, TimerMode::Repeating),
-            soldier_scene,
-            Vec3::new(0.0, 1., 0.0),
-        ),
-        Friendly,
-    );
-
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
-        soldier.0.scene_bundle.transform.scale.x * 5.0,
-        1.0,
-    )));
-    let healthbar_img = assets.load("imgs/full_health.png");
-    let healthbar = HealthbarBundle::new(Vec3::new(0.0, 4.5, 0.0), healthbar_img, healthbar_mesh);
-
-    cmds.spawn(soldier).with_children(|parent| {
-        parent.spawn(healthbar);
-    });
 }
 
 pub fn set_unit_destination(
@@ -184,15 +134,17 @@ fn attack(
             &mut Destination,
             &mut Target,
             &mut FireRate,
+            &mut CurrentAction,
         ),
         With<Friendly>,
     >,
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
     enemy_transform_q: Query<&Transform>,
-    mut animation_players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
 ) {
-    for (damage, range, transform, mut destination, target, mut fire_rate) in friendly_q.iter_mut()
+    let mut count = 0.0;
+    for (damage, range, transform, mut destination, target, mut fire_rate, mut current_action) in
+        friendly_q.iter_mut()
     {
         if let Some(target_ent) = target.0 {
             let Ok(enemy_transform) = enemy_transform_q.get(target_ent) else {
@@ -202,26 +154,17 @@ fn attack(
             // only attack when enemy is in range
             let distance = (transform.translation - enemy_transform.translation).length();
             if distance <= range.0 {
+                count = count + 1.0;
                 destination.0 = None;
                 fire_rate.0.tick(time.delta());
-
-                //  play animation
-                for (mut player, mut transitions) in &mut animation_players {
-                    let Some((&playing_animation_index, _)) = player.playing_animations().next()
-                    else {
-                        continue;
-                    };
-
-                    let shooting_animation = player.animation_mut(playing_animation_index).unwrap();
-                    shooting_animation.repeat();
-                }
+                current_action.0 = Action::Attack;
 
                 if !fire_rate.0.finished() {
                     return;
                 }
 
                 if let Ok(mut health) = health_q.get_mut(target_ent) {
-                    println!("Tank Health: {}", health.0);
+                    // println!("Tank Health: {}", health.0);
                     health.0 -= damage.0;
 
                     // despawn tank if health < 0
@@ -232,4 +175,6 @@ fn attack(
             }
         }
     }
+
+    println!("{} units attacking a tank", count);
 }
