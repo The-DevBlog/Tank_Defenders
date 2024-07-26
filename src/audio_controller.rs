@@ -13,7 +13,10 @@ fn audio_controller(unit_q: Query<(&CurrentAction, &AudioSink), With<Unit>>) {
     for (action, sink) in unit_q.iter() {
         match action.0 {
             Action::Relocate => sink.pause(),
-            Action::Attack => sink.play(),
+            Action::Attack => {
+                sink.play();
+                // println!("Attacking");
+            }
             Action::None => sink.pause(),
         }
     }
