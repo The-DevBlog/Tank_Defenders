@@ -44,6 +44,7 @@ pub fn set_unit_destination(
 fn move_unit(
     mut unit_q: Query<
         (
+            &mut CurrentAction,
             &mut Transform,
             &mut ExternalImpulse,
             &Speed,
@@ -53,13 +54,16 @@ fn move_unit(
     >,
     time: Res<Time>,
 ) {
-    for (mut trans, mut ext_impulse, speed, mut destination) in unit_q.iter_mut() {
+    for (mut action, mut trans, mut ext_impulse, speed, mut destination) in unit_q.iter_mut() {
         if let Some(new_pos) = destination.0 {
             let distance = new_pos - trans.translation;
             if distance.length_squared() <= 5.0 {
                 destination.0 = None;
+                action.0 = Action::None;
+
                 // println!("Unit Stopping");
             } else {
+                action.0 = Action::Relocate;
                 // Calculate the direction vector on the XZ plane
                 let direction = Vec3::new(distance.x, 0.0, distance.z).normalize();
 
@@ -143,33 +147,36 @@ fn attack(
     enemy_transform_q: Query<&Transform>,
 ) {
     let mut count = 0.0;
-    for (damage, range, transform, mut destination, target, mut fire_rate, mut current_action) in
+    for (dmg, range, transform, mut destination, target, mut fire_rate, mut current_action) in
         friendly_q.iter_mut()
     {
         if let Some(target_ent) = target.0 {
-            let Ok(enemy_transform) = enemy_transform_q.get(target_ent) else {
-                return;
-            };
+            // let Ok(enemy_transform) = enemy_transform_q.get(target_ent) else {
+            //     return;
+            // };
+            if let Ok(enemy_transform) = enemy_transform_q.get(target_ent) {
+                // only attack when enemy is in range
+                let distance = (transform.translation - enemy_transform.translation).length();
+                if distance <= range.0 {
+                    count = count + 1.0;
+                    destination.0 = None;
+                    fire_rate.0.tick(time.delta());
+                    current_action.0 = Action::Attack;
 
-            // only attack when enemy is in range
-            let distance = (transform.translation - enemy_transform.translation).length();
-            if distance <= range.0 {
-                count = count + 1.0;
-                destination.0 = None;
-                fire_rate.0.tick(time.delta());
-                current_action.0 = Action::Attack;
+                    if let Ok(mut health) = health_q.get_mut(target_ent) {
+                        if !fire_rate.0.finished() {
+                            return;
+                        }
 
-                if let Ok(mut health) = health_q.get_mut(target_ent) {
-                    if !fire_rate.0.finished() {
-                        return;
-                    }
-                    // println!("Tank Health: {}", health.0);
-                    cmds.trigger(InvokeDamage::new(damage.0, target_ent));
-                    health.current -= damage.0;
+                        // println!("Tank Health: {}", health.0);
+                        cmds.trigger(InvokeDamage::new(dmg.0, target_ent));
+                        health.current -= dmg.0;
 
-                    // despawn tank if health < 0
-                    if health.current < 0.0 {
-                        cmds.entity(target_ent).despawn_recursive();
+                        // despawn tank if health < 0
+                        if health.current < 0.0 {
+                            current_action.0 = Action::None;
+                            cmds.entity(target_ent).despawn_recursive();
+                        }
                     }
                 }
             }

@@ -1,7 +1,5 @@
-use bevy::prelude::*;
-use bevy_mod_billboard::{
-    Billboard, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
-};
+use bevy::{audio::PlaybackMode, prelude::*};
+use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle};
 use bevy_rapier3d::prelude::*;
 
 #[derive(Component)]
@@ -12,6 +10,9 @@ pub struct Speed(pub f32);
 
 #[derive(Component)]
 pub struct Enemy;
+
+#[derive(Component)]
+pub struct MyAudio;
 
 #[derive(Component)]
 pub struct Damage(pub f32);
@@ -73,6 +74,7 @@ pub struct UnitBundle {
     pub destination: Destination,
     pub unit: Unit,
     pub target: Target,
+    pub my_audio: MyAudio,
     pub locked_axis: LockedAxes,
     pub scene_bundle: SceneBundle,
     pub health: Health,
@@ -80,6 +82,7 @@ pub struct UnitBundle {
     pub damage: Damage,
     pub fire_rate: FireRate,
     pub current_action: CurrentAction,
+    pub audio: AudioBundle,
 }
 
 impl UnitBundle {
@@ -101,11 +104,20 @@ impl UnitBundle {
             },
             external_impulse: ExternalImpulse::default(),
             name: Name::new(name),
+            my_audio: MyAudio,
             rigid_body: RigidBody::Dynamic,
             speed: Speed(speed),
             target: Target(None),
             damage: Damage(damage),
             destination: Destination(None),
+            audio: AudioBundle {
+                settings: PlaybackSettings {
+                    paused: true,
+                    mode: PlaybackMode::Loop,
+                    ..default()
+                },
+                ..default()
+            },
             unit: Unit,
             fire_rate: FireRate(fire_rate),
             range: Range(50.0),
@@ -133,15 +145,11 @@ pub struct Healthbar {
     pub y_position: f32,
 }
 
-// #[derive(Component)]
-// pub struct HealthbarWidth(pub f32);
-
 #[derive(Bundle)]
 pub struct HealthbarBundle {
     pub texture: BillboardTextureBundle,
     pub name: Name,
     pub healthbar: Healthbar,
-    // pub width: HealthbarWidth,
 }
 
 impl HealthbarBundle {
