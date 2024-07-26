@@ -200,6 +200,10 @@ fn attack_if_in_radius(
     enemy_q: Query<(Entity, &Transform), With<Enemy>>,
 ) {
     for (range, friendly_transform, mut target, action) in friendly_q.iter_mut() {
+        // if action.0 == Action::Relocate {
+        //     return;
+        // }
+
         if action.0 == Action::None && target.0.is_none() {
             let mut found_target = false;
             for (enemy_ent, enemy_transform) in enemy_q.iter() {

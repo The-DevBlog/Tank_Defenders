@@ -1,7 +1,4 @@
-use bevy::{
-    audio::{PlaybackMode, Source},
-    prelude::*,
-};
+use bevy::{audio::PlaybackMode, prelude::*};
 use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle};
 use bevy_rapier3d::prelude::*;
 
@@ -75,6 +72,7 @@ pub enum Action {
 #[derive(Bundle)]
 pub struct UnitBundle {
     pub collider: Collider,
+    pub collider_debug_color: ColliderDebugColor,
     pub damping: Damping,
     pub external_impulse: ExternalImpulse,
     pub name: Name,
@@ -108,6 +106,7 @@ impl UnitBundle {
     ) -> Self {
         Self {
             collider: Collider::cuboid(size.x, size.y, size.z),
+            collider_debug_color: ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)),
             damping: Damping {
                 linear_damping: 5.0,
                 ..default()

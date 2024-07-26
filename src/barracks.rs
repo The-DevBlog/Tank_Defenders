@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider};
+use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider, render::ColliderDebugColor};
 
 use crate::{
     tanks::spawn_tank, Barracks, BuildUnitEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
