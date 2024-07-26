@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     resources::{Bank, MyAssets},
-    BankBalanceTxt, Barracks, Friendly, Health, Healthbar, HealthbarBundle, UnitBundle,
+    BankBalanceTxt, Health, Healthbar, HealthbarBundle,
 };
 
 pub struct EventsPlugin;
@@ -11,7 +11,6 @@ impl Plugin for EventsPlugin {
     fn build(&self, app: &mut App) {
         app.observe(purchase_unit_request)
             .observe(update_bank_balance)
-            .observe(build_unit)
             .observe(update_healthbar);
     }
 }
@@ -77,52 +76,6 @@ fn update_bank_balance(
         txt.sections[0].value = new_balance;
     }
 }
-
-fn build_unit(
-    _trigger: Trigger<BuildUnitEv>,
-    barracks_q: Query<&Transform, With<Barracks>>,
-    assets: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut cmds: Commands,
-) {
-    let Ok(barracks_transform) = barracks_q.get_single() else {
-        return;
-    };
-
-    let pos = barracks_transform.translation;
-    let mut soldier = (
-        UnitBundle::new(
-            "Soldier".to_string(),
-            5000.0,
-            5.0,
-            Vec3::new(2., 2., 2.),
-            50.0,
-            Timer::from_seconds(0.25, TimerMode::Repeating),
-            assets.load("soldier_animations.glb#Scene0"),
-            Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
-        ),
-        Friendly,
-    );
-
-    soldier.0.audio.source = assets.load("audio/rifle_fire.ogg");
-    soldier.0.destination.0 = Some(Vec3::new(pos.x - 100.0, 1.0, pos.z + 60.0));
-
-    let healthbar_width = 5.0;
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(healthbar_width, 1.0)));
-    let healthbar_img = assets.load("imgs/full_health.png");
-    let healthbar = HealthbarBundle::new(
-        healthbar_width,
-        Vec3::new(0.0, 4.5, 0.0),
-        healthbar_img,
-        healthbar_mesh,
-    );
-
-    cmds.spawn(soldier).with_children(|parent| {
-        parent.spawn(healthbar);
-    });
-    println!("Building Unit");
-}
-
 fn update_healthbar(
     trigger: Trigger<InvokeDamage>,
     health_q: Query<&Health>,

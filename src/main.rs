@@ -31,7 +31,9 @@ use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
+
 const MAP_SIZE: f32 = 400.0;
+const SPEED_QUANTIFIER: f32 = 1000.0;
 
 fn main() {
     App::new()

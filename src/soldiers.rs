@@ -130,7 +130,7 @@ fn command_attack(
 
 fn attack(
     mut cmds: Commands,
-    mut friendly_q: Query<
+    mut unit_q: Query<
         (
             &Damage,
             &Range,
@@ -140,17 +140,17 @@ fn attack(
             &mut FireRate,
             &mut CurrentAction,
         ),
-        With<Friendly>,
+        With<Unit>,
     >,
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
-    enemy_transform_q: Query<&Transform>,
+    target_transform_q: Query<&Transform>,
 ) {
     for (dmg, range, transform, mut destination, mut target, mut fire_rate, mut current_action) in
-        friendly_q.iter_mut()
+        unit_q.iter_mut()
     {
         if let Some(target_ent) = target.0 {
-            if let Ok(enemy_transform) = enemy_transform_q.get(target_ent) {
+            if let Ok(enemy_transform) = target_transform_q.get(target_ent) {
                 // only attack when enemy is in range
                 let distance = (transform.translation - enemy_transform.translation).length();
                 if distance <= range.0 {
