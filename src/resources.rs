@@ -81,11 +81,11 @@ impl Default for CustomCursor {
     }
 }
 
-#[derive(Resource)]
-pub struct Animations {
-    pub animations: Vec<AnimationNodeIndex>,
-    pub graph: Handle<AnimationGraph>,
-}
+// #[derive(Resource)]
+// pub struct Animations {
+//     pub animations: Vec<AnimationNodeIndex>,
+//     pub graph: Handle<AnimationGraph>,
+// }
 
 fn setup(mut my_assets: ResMut<MyAssets>, assets: Res<AssetServer>) {
     my_assets.full_health = assets.load("imgs/full_health.png");
