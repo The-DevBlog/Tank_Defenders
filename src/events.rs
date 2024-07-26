@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_kira_audio::AudioInstance;
 
 use crate::{
     resources::{Bank, MyAssets},
@@ -90,7 +91,6 @@ fn build_unit(
     };
 
     let pos = barracks_transform.translation;
-    let soldier_scene = assets.load("soldier_animations.glb#Scene0");
     let mut soldier = (
         UnitBundle::new(
             "Soldier".to_string(),
@@ -99,12 +99,15 @@ fn build_unit(
             Vec3::new(2., 2., 2.),
             50.0,
             Timer::from_seconds(0.25, TimerMode::Repeating),
-            soldier_scene,
+            assets.load("soldier_animations.glb#Scene0"),
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
         Friendly,
     );
 
+    let audio: Handle<AudioInstance> = assets.load("audio/rifle_fire.ogg");
+    soldier.0.audio_test.0 = Some(audio);
+    soldier.0.assets.shoot_audio = Some(assets.load("audio/rifle_fire.ogg"));
     soldier.0.destination.0 = Some(Vec3::new(pos.x - 100.0, 1.0, pos.z + 60.0));
 
     let healthbar_width = 5.0;

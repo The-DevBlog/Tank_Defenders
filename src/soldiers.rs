@@ -44,6 +44,7 @@ pub fn set_unit_destination(
 fn move_unit(
     mut unit_q: Query<
         (
+            &mut CurrentAction,
             &mut Transform,
             &mut ExternalImpulse,
             &Speed,
@@ -53,13 +54,16 @@ fn move_unit(
     >,
     time: Res<Time>,
 ) {
-    for (mut trans, mut ext_impulse, speed, mut destination) in unit_q.iter_mut() {
+    for (mut action, mut trans, mut ext_impulse, speed, mut destination) in unit_q.iter_mut() {
         if let Some(new_pos) = destination.0 {
             let distance = new_pos - trans.translation;
             if distance.length_squared() <= 5.0 {
                 destination.0 = None;
+                action.0 = Action::None;
+
                 // println!("Unit Stopping");
             } else {
+                action.0 = Action::Relocate;
                 // Calculate the direction vector on the XZ plane
                 let direction = Vec3::new(distance.x, 0.0, distance.z).normalize();
 
@@ -128,6 +132,7 @@ fn attack(
     mut cmds: Commands,
     mut friendly_q: Query<
         (
+            // Entity,
             &Damage,
             &Range,
             &Transform,
@@ -141,11 +146,20 @@ fn attack(
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
     enemy_transform_q: Query<&Transform>,
-    assets: Res<AssetServer>,
+    // assets: Res<AssetServer>,
+    // mut audio_q: Query<&mut PlaybackSettings>,
 ) {
     let mut count = 0.0;
-    for (damage, range, transform, mut destination, target, mut fire_rate, mut current_action) in
-        friendly_q.iter_mut()
+    for (
+        // friendly_ent,
+        damage,
+        range,
+        transform,
+        mut destination,
+        target,
+        mut fire_rate,
+        mut current_action,
+    ) in friendly_q.iter_mut()
     {
         if let Some(target_ent) = target.0 {
             let Ok(enemy_transform) = enemy_transform_q.get(target_ent) else {
@@ -164,12 +178,23 @@ fn attack(
                     if !fire_rate.0.finished() {
                         return;
                     }
+
+                    // cmds.spawn(AudioBundle {
+                    //     source: assets.load(r"audio\rifle_fire.ogg"),
+                    //     settings: PlaybackSettings {
+                    //         // volume: Volume::Relative(VolumeLevel::new(0.5)),
+                    //         ..default()
+                    //     },
+                    //     ..default()
+                    // });
+
                     // println!("Tank Health: {}", health.0);
                     cmds.trigger(InvokeDamage::new(damage.0, target_ent));
                     health.current -= damage.0;
 
                     // despawn tank if health < 0
                     if health.current < 0.0 {
+                        current_action.0 = Action::None;
                         cmds.entity(target_ent).despawn_recursive();
                     }
                 }

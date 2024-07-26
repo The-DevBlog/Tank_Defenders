@@ -1,7 +1,6 @@
 use bevy::prelude::*;
-use bevy_mod_billboard::{
-    Billboard, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
-};
+use bevy_kira_audio::{Audio, AudioChannel, AudioInstance};
+use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle};
 use bevy_rapier3d::prelude::*;
 
 #[derive(Component)]
@@ -12,6 +11,17 @@ pub struct Speed(pub f32);
 
 #[derive(Component)]
 pub struct Enemy;
+
+#[derive(Component)]
+pub struct MyAssets {
+    pub shoot_audio: Option<Handle<bevy_kira_audio::AudioSource>>,
+}
+
+// #[derive(Component)]
+// pub struct AudioTest(pub Option<Handle<AudioInstance>>);
+
+#[derive(Component)]
+pub struct AudioTest(pub Option<AudioChannel>);
 
 #[derive(Component)]
 pub struct Damage(pub f32);
@@ -62,6 +72,9 @@ pub enum Action {
     None,
 }
 
+// #[derive(Component)]
+// pub struct FireAudio(pub Handle<Source>);
+
 #[derive(Bundle)]
 pub struct UnitBundle {
     pub collider: Collider,
@@ -71,11 +84,13 @@ pub struct UnitBundle {
     pub rigid_body: RigidBody,
     pub speed: Speed,
     pub destination: Destination,
+    pub audio_test: AudioTest,
     pub unit: Unit,
     pub target: Target,
     pub locked_axis: LockedAxes,
     pub scene_bundle: SceneBundle,
     pub health: Health,
+    pub assets: MyAssets,
     pub range: Range,
     pub damage: Damage,
     pub fire_rate: FireRate,
@@ -106,7 +121,9 @@ impl UnitBundle {
             target: Target(None),
             damage: Damage(damage),
             destination: Destination(None),
+            assets: MyAssets { shoot_audio: None },
             unit: Unit,
+            audio_test: AudioTest(None),
             fire_rate: FireRate(fire_rate),
             range: Range(50.0),
             health: Health {
@@ -133,15 +150,11 @@ pub struct Healthbar {
     pub y_position: f32,
 }
 
-// #[derive(Component)]
-// pub struct HealthbarWidth(pub f32);
-
 #[derive(Bundle)]
 pub struct HealthbarBundle {
     pub texture: BillboardTextureBundle,
     pub name: Name,
     pub healthbar: Healthbar,
-    // pub width: HealthbarWidth,
 }
 
 impl HealthbarBundle {
