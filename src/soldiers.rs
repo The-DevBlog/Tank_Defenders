@@ -26,7 +26,7 @@ impl Plugin for SoldiersPlugin {
 
 pub fn set_unit_destination(
     mouse_coords: ResMut<MouseCoords>,
-    mut friendly_q: Query<(&mut Destination, &mut Target, &Transform), With<Selected>>,
+    mut friendly_q: Query<(&mut Destination, &mut Target, &Transform, &Selected), With<Selected>>,
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
     cursor: Res<CustomCursor>,
@@ -35,7 +35,11 @@ pub fn set_unit_destination(
         return;
     }
 
-    for (mut unit_destination, mut target, trans) in friendly_q.iter_mut() {
+    for (mut unit_destination, mut target, trans, selected) in friendly_q.iter_mut() {
+        if !selected.0 {
+            break;
+        }
+
         if cursor.state == CursorState::Relocate {
             target.0 = None;
         }
@@ -89,19 +93,18 @@ fn move_unit(
 
 fn command_attack(
     rapier_context: Res<RapierContext>,
-    select_q: Query<Entity, With<Selected>>,
+    mut select_q: Query<(&Selected, &mut Target), With<Selected>>,
     enemy_q: Query<Entity, With<Enemy>>,
     cam_q: Query<(&Camera, &GlobalTransform)>,
     mouse_coords: Res<MouseCoords>,
     input: Res<ButtonInput<MouseButton>>,
     mut cursor: ResMut<CustomCursor>,
-    mut cmds: Commands,
+    game_cmds: Res<GameCommands>,
 ) {
-    if select_q.is_empty() {
+    if !game_cmds.selected {
         cursor.state = CursorState::Normal;
         return;
     }
-
     let (cam, cam_trans) = cam_q.single();
 
     let Some(ray) = cam.viewport_to_world(cam_trans, mouse_coords.local) else {
@@ -123,8 +126,10 @@ fn command_attack(
 
             // if enemy is clicked, command friendlies to attack
             if input.just_pressed(MouseButton::Left) {
-                for friendly_ent in select_q.iter() {
-                    cmds.entity(friendly_ent).insert(Target(Some(enemy_ent)));
+                for (selected, mut target) in select_q.iter_mut() {
+                    if selected.0 {
+                        target.0 = Some(enemy_ent);
+                    }
                 }
             }
             return;
