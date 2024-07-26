@@ -66,26 +66,25 @@ fn move_unit(
 ) {
     for (mut action, mut trans, mut ext_impulse, speed, mut destination) in unit_q.iter_mut() {
         if let Some(new_pos) = destination.0 {
+            // Update the unit's rotation to face the direction
             let distance = new_pos - trans.translation;
+
+            // Calculate the direction vector on the XZ plane
+            let direction = Vec3::new(distance.x, 0.0, distance.z).normalize();
+
+            // Calculate the target Y rotation (yaw)
+            let target_yaw = direction.x.atan2(direction.z); // Corrected yaw calculation
+            let target_rotation = Quat::from_rotation_y(target_yaw); // Remove adjustment for facin
+            trans.rotation = target_rotation;
+
             if distance.length_squared() <= 5.0 {
                 destination.0 = None;
                 action.0 = Action::None;
-
                 // println!("Unit Stopping");
             } else {
                 action.0 = Action::Relocate;
-                // Calculate the direction vector on the XZ plane
-                let direction = Vec3::new(distance.x, 0.0, distance.z).normalize();
-
                 // Set the impulse to move the unit
                 ext_impulse.impulse += direction * speed.0 * time.delta_seconds();
-
-                // Calculate the target Y rotation (yaw)
-                let target_yaw = direction.x.atan2(direction.z); // Corrected yaw calculation
-                let target_rotation = Quat::from_rotation_y(target_yaw); // Remove adjustment for facing direction
-
-                // Update the unit's rotation to face the direction
-                trans.rotation = target_rotation;
             }
         }
     }
@@ -167,6 +166,11 @@ fn attack(
                 if distance <= range.0 {
                     destination.0 = None;
                     action.0 = Action::Attack;
+
+                    // Rotate to face the target
+                    // let direction =
+                    //     (enemy_transform.translation - transform.translation).normalize();
+                    // transform.rotation = Quat::from_rotation_arc(Vec3::X, direction);
 
                     if let Ok(mut health) = health_q.get_mut(target_ent) {
                         // Despawn if health < 0
