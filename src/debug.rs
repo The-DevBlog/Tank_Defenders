@@ -25,6 +25,6 @@ fn print_friendly_info(
         // println!("Selected: {}", _selected.0);
     }
 
-    println!("Game Commands: {:?}", _game_cmds);
+    // println!("Game Commands: {:?}", _game_cmds);
     // println!("Cursor State: {:?}", _custom_cursor.state);
 }

@@ -5,7 +5,7 @@ use bevy_rts_camera::RtsCamera;
 use crate::{
     resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords},
     soldiers::set_unit_destination,
-    Friendly, MapBase, Selected,
+    Enemy, Friendly, MapBase, Selected,
 };
 
 pub struct MousePlugin;
@@ -132,6 +132,7 @@ pub fn drag_select(
 pub fn single_select(
     rapier_context: Res<RapierContext>,
     cam_q: Query<(&Camera, &GlobalTransform)>,
+    enemy_q: Query<Entity, With<Enemy>>,
     mut select_q: Query<(Entity, &mut Selected, &mut ColliderDebugColor), With<Friendly>>,
     mouse_coords: Res<MouseCoords>,
     input: Res<ButtonInput<MouseButton>>,
@@ -156,13 +157,19 @@ pub fn single_select(
     );
 
     if let Some((ent, _)) = hit {
+        if let Ok(_) = enemy_q.get(ent) {
+            return;
+        }
+
         // deselect all currently selected entities
         for (selected_entity, mut selected, mut collider_color) in select_q.iter_mut() {
             let tmp = selected_entity.index() == ent.index();
             if tmp && !selected.0 {
+                println!("SELECT");
                 selected.0 = true;
                 collider_color.0.alpha = 1.0;
             } else {
+                println!("DE-SELECT");
                 selected.0 = false;
                 collider_color.0.alpha = 0.0;
             }
@@ -177,7 +184,7 @@ pub fn deselect_all(
     if input.just_pressed(MouseButton::Right) {
         for (mut selected, mut collider_color) in select_q.iter_mut() {
             selected.0 = false;
-            collider_color.0.alpha = 1.0;
+            collider_color.0.alpha = 0.0;
         }
     }
 }

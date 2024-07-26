@@ -26,7 +26,7 @@ impl Plugin for SoldiersPlugin {
 
 pub fn set_unit_destination(
     mouse_coords: ResMut<MouseCoords>,
-    mut friendly_q: Query<(&mut Destination, &mut Target, &Transform, &Selected), With<Selected>>,
+    mut friendly_q: Query<(&mut Destination, &mut Target, &Transform, &Selected), With<Friendly>>,
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
     cursor: Res<CustomCursor>,
@@ -37,7 +37,7 @@ pub fn set_unit_destination(
 
     for (mut unit_destination, mut target, trans, selected) in friendly_q.iter_mut() {
         if !selected.0 {
-            break;
+            continue;
         }
 
         if cursor.state == CursorState::Relocate {
