@@ -4,7 +4,7 @@ use bevy_rapier3d::prelude::*;
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
     Action, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health, InvokeDamage,
-    Range, Selected, Speed, Target, Unit,
+    Range, Selected, Speed, Target, Unit, UpdateBankBalanceEv,
 };
 
 pub struct SoldiersPlugin;
@@ -128,61 +128,6 @@ fn command_attack(
     cursor.state = CursorState::Relocate;
 }
 
-// fn attack(
-//     mut cmds: Commands,
-//     mut friendly_q: Query<
-//         (
-//             &Damage,
-//             &Range,
-//             &Transform,
-//             &mut Destination,
-//             &mut Target,
-//             &mut FireRate,
-//             &mut CurrentAction,
-//         ),
-//         With<Friendly>,
-//     >,
-//     time: Res<Time>,
-//     mut health_q: Query<&mut Health>,
-//     enemy_transform_q: Query<&Transform>,
-// ) {
-//     for (dmg, range, transform, mut destination, mut target, mut fire_rate, mut current_action) in
-//         friendly_q.iter_mut()
-//     {
-//         if let Some(target_ent) = target.0 {
-//             if let Ok(enemy_transform) = enemy_transform_q.get(target_ent) {
-//                 // only attack when enemy is in range
-//                 let distance = (transform.translation - enemy_transform.translation).length();
-//                 if distance <= range.0 {
-//                     destination.0 = None;
-//                     fire_rate.0.tick(time.delta());
-//                     current_action.0 = Action::Attack;
-
-//                     if let Ok(mut health) = health_q.get_mut(target_ent) {
-//                         if !fire_rate.0.finished() {
-//                             return;
-//                         }
-
-//                         // println!("Tank Health: {}", health.0);
-//                         cmds.trigger(InvokeDamage::new(dmg.0, target_ent));
-//                         health.current -= dmg.0;
-
-//                         // despawn tank if health < 0
-//                         if health.current < 0.0 {
-//                             current_action.0 = Action::None;
-//                             cmds.entity(target_ent).despawn_recursive();
-//                         }
-//                     }
-//                 }
-//             } else {
-//                 target.0 = None;
-//             }
-//         } else {
-//             current_action.0 = Action::None;
-//         }
-//     }
-// }
-
 fn attack(
     mut cmds: Commands,
     mut friendly_q: Query<
@@ -221,6 +166,7 @@ fn attack(
                             // despawn tank if health < 0
                             if health.current < 0.0 {
                                 current_action.0 = Action::None;
+                                cmds.trigger(UpdateBankBalanceEv::new(100));
                                 cmds.entity(target_ent).despawn_recursive();
                             }
                         }

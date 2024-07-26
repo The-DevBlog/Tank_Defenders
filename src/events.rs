@@ -22,7 +22,7 @@ pub struct UpdateBankBalanceEv {
 }
 
 impl UpdateBankBalanceEv {
-    fn new(amount: i32) -> Self {
+    pub fn new(amount: i32) -> Self {
         UpdateBankBalanceEv { amount }
     }
 }
