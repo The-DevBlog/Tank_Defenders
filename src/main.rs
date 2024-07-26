@@ -7,6 +7,7 @@ mod debug;
 mod events;
 mod hud;
 mod map;
+mod mouse;
 mod resources;
 mod soldiers;
 mod tanks;
@@ -21,10 +22,10 @@ use debug::DebugPlugin;
 use events::*;
 use hud::HudPlugin;
 use map::MapPlugin;
+use mouse::MousePlugin;
 use resources::ResourcesPlugin;
 use soldiers::SoldiersPlugin;
 use tanks::TanksPlugin;
-use utils::UtilsPlugin;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -52,7 +53,7 @@ fn main() {
             ResourcesPlugin,
             TanksPlugin,
             SoldiersPlugin,
-            UtilsPlugin,
+            MousePlugin,
             RapierDebugRenderPlugin::default(),
             RapierPhysicsPlugin::<NoUserData>::default(),
             WorldInspectorPlugin::new(),

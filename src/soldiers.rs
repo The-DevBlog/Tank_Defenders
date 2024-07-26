@@ -19,7 +19,7 @@ impl Plugin for SoldiersPlugin {
                 command_attack,
                 attack,
                 attack_if_in_radius,
-            ), // .chain(),
+            ),
         );
     }
 }
@@ -161,21 +161,27 @@ fn attack(
                 let distance = (transform.translation - enemy_transform.translation).length();
                 if distance <= range.0 {
                     destination.0 = None;
-                    fire_rate.0.tick(time.delta());
                     action.0 = Action::Attack;
 
-                    if fire_rate.0.finished() {
-                        if let Ok(mut health) = health_q.get_mut(target_ent) {
+                    if let Ok(mut health) = health_q.get_mut(target_ent) {
+                        // Despawn if health < 0
+                        if health.current <= 0.0 {
+                            action.0 = Action::None;
+                            cmds.trigger(UpdateBankBalanceEv::new(100));
+                            cmds.entity(target_ent).despawn_recursive();
+                        }
+
+                        if fire_rate.0.elapsed().is_zero() {
+                            // Trigger the damage event at the start of the timer
                             cmds.trigger(InvokeDamage::new(dmg.0, target_ent));
                             health.current -= dmg.0;
-
-                            // despawn tank if health < 0
-                            if health.current < 0.0 {
-                                action.0 = Action::None;
-                                cmds.trigger(UpdateBankBalanceEv::new(100));
-                                cmds.entity(target_ent).despawn_recursive();
-                            }
                         }
+                    }
+
+                    if fire_rate.0.finished() {
+                        fire_rate.0.reset();
+                    } else {
+                        fire_rate.0.tick(time.delta());
                     }
                 } else {
                     destination.0 = Some(enemy_transform.translation);
@@ -194,15 +200,19 @@ fn attack_if_in_radius(
     enemy_q: Query<(Entity, &Transform), With<Enemy>>,
 ) {
     for (range, friendly_transform, mut target, action) in friendly_q.iter_mut() {
-        if action.0 == Action::None {
+        if action.0 == Action::None && target.0.is_none() {
+            let mut found_target = false;
             for (enemy_ent, enemy_transform) in enemy_q.iter() {
                 let distance =
                     (friendly_transform.translation - enemy_transform.translation).length();
-                if distance <= range.0 && target.0.is_none() {
+                if distance <= range.0 {
                     target.0 = Some(enemy_ent);
-                } else {
-                    target.0 = None;
+                    found_target = true;
+                    break;
                 }
+            }
+            if !found_target {
+                target.0 = None;
             }
         }
     }
