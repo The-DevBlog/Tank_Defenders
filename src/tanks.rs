@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    Barracks, CurrentAction, Enemy, Friendly, HealthbarBundle, Range, Target, UnitBundle,
-    SPEED_QUANTIFIER,
+    Barracks, Enemy, Friendly, HealthbarBundle, Range, Target, UnitBundle, SPEED_QUANTIFIER,
 };
 
 pub struct TanksPlugin;
@@ -24,7 +23,7 @@ pub fn spawn_tank(
         UnitBundle::new(
             "Tank".to_string(),
             15.0 * SPEED_QUANTIFIER,
-            50.0,
+            1.0,
             125.0,
             1000.0,
             Vec3::new(4., 2., 6.),
