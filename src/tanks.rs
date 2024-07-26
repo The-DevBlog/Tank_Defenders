@@ -20,19 +20,19 @@ pub fn spawn_tank(
     let mut tank = (
         UnitBundle::new(
             "Tank".to_string(),
-            10.0 * SPEED_QUANTIFIER,
+            15.0 * SPEED_QUANTIFIER,
             50.0,
             125.0,
             Vec3::new(4., 2., 6.),
             1000.0,
-            Timer::from_seconds(1.25, TimerMode::Repeating),
+            Timer::from_seconds(1.5, TimerMode::Repeating),
             tank_scene,
             Vec3::new(50.0, 0.0, 100.0),
         ),
         Enemy,
     );
 
-    tank.0.audio.source = assets.load("audio/rifle_fire.ogg");
+    tank.0.audio.source = assets.load("audio/tank_fire.ogg");
 
     if let Ok((barracks_transform, barracks_ent)) = barracks_q.get_single() {
         tank.0.destination.0 = Some(barracks_transform.translation);
