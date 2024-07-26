@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider};
+use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider, render::ColliderDebugColor};
 
 use crate::{
     tanks::spawn_tank, Barracks, BuildUnitEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
@@ -72,7 +72,7 @@ fn build_unit(
             5.0 * SPEED_QUANTIFIER,
             5.0,
             50.0,
-            50.0,
+            100.0,
             Vec3::new(2., 2., 2.),
             assets.load("audio/rifle_fire.ogg"),
             Timer::from_seconds(0.25, TimerMode::Repeating),
