@@ -93,10 +93,12 @@ fn update_healthbar(
     for child in children_q.iter_descendants(trigger.event().target) {
         if let Ok(healthbar) = healthbar_q.get(child) {
             let width = healthbar.width / (health.original / health.current);
-            let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(width, 1.5)));
+            let healthbar_mesh =
+                meshes.add(Rectangle::from_size(Vec2::new(width, healthbar.height)));
             let healthbar_img = my_assets.full_health.clone();
             let new_healthbar = HealthbarBundle::new(
                 healthbar.width,
+                healthbar.height,
                 Vec3::new(0.0, healthbar.y_position, 0.0),
                 healthbar_img,
                 healthbar_mesh,

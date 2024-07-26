@@ -1,4 +1,7 @@
-use bevy::{audio::PlaybackMode, prelude::*};
+use bevy::{
+    audio::{PlaybackMode, Source},
+    prelude::*,
+};
 use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle};
 use bevy_rapier3d::prelude::*;
 
@@ -10,9 +13,6 @@ pub struct Speed(pub f32);
 
 #[derive(Component)]
 pub struct Enemy;
-
-#[derive(Component)]
-pub struct MyAudio;
 
 #[derive(Component)]
 pub struct Damage(pub f32);
@@ -83,7 +83,6 @@ pub struct UnitBundle {
     pub destination: Destination,
     pub unit: Unit,
     pub target: Target,
-    pub my_audio: MyAudio,
     pub locked_axis: LockedAxes,
     pub scene_bundle: SceneBundle,
     pub health: Health,
@@ -100,8 +99,9 @@ impl UnitBundle {
         speed: f32,
         damage: f32,
         range: f32,
-        size: Vec3,
         health: f32,
+        size: Vec3,
+        audio_source: Handle<AudioSource>,
         fire_rate: Timer,
         scene: Handle<Scene>,
         translation: Vec3,
@@ -114,13 +114,13 @@ impl UnitBundle {
             },
             external_impulse: ExternalImpulse::default(),
             name: Name::new(name),
-            my_audio: MyAudio,
             rigid_body: RigidBody::Dynamic,
             speed: Speed(speed),
             target: Target(None),
             damage: Damage(damage),
             destination: Destination(None),
             audio: AudioBundle {
+                source: audio_source,
                 settings: PlaybackSettings {
                     paused: true,
                     mode: PlaybackMode::Loop,
@@ -152,6 +152,7 @@ impl UnitBundle {
 #[derive(Component)]
 pub struct Healthbar {
     pub width: f32,
+    pub height: f32,
     pub y_position: f32,
 }
 
@@ -163,7 +164,13 @@ pub struct HealthbarBundle {
 }
 
 impl HealthbarBundle {
-    pub fn new(width: f32, translation: Vec3, img: Handle<Image>, mesh: Handle<Mesh>) -> Self {
+    pub fn new(
+        width: f32,
+        height: f32,
+        translation: Vec3,
+        img: Handle<Image>,
+        mesh: Handle<Mesh>,
+    ) -> Self {
         Self {
             texture: BillboardTextureBundle {
                 transform: Transform::from_translation(translation),
@@ -171,9 +178,9 @@ impl HealthbarBundle {
                 mesh: BillboardMeshHandle(mesh),
                 ..default()
             },
-            // width: HealthbarWidth(width),
             healthbar: Healthbar {
                 width: width,
+                height: height,
                 y_position: translation.y,
             },
             name: Name::new("Healthbar"),

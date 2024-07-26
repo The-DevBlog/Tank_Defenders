@@ -20,14 +20,15 @@ pub fn spawn_tank(
     let mut tank = (
         UnitBundle::new(
             "Tank".to_string(),
-            10.0 * SPEED_QUANTIFIER,
+            15.0 * SPEED_QUANTIFIER,
             50.0,
-            150.0,
-            Vec3::new(4., 2., 6.),
+            125.0,
             1000.0,
-            Timer::from_seconds(1.0, TimerMode::Repeating),
+            Vec3::new(4., 2., 6.),
+            assets.load("audio/tank_fire.ogg"),
+            Timer::from_seconds(1.5, TimerMode::Repeating),
             tank_scene,
-            Vec3::new(50.0, 0.0, 150.0),
+            Vec3::new(50.0, 0.0, 100.0),
         ),
         Enemy,
     );
@@ -37,11 +38,16 @@ pub fn spawn_tank(
         tank.0.target.0 = Some(barracks_ent);
     }
 
+    let healthbar_height = 1.5;
     let healthbar_width = 10.0;
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(healthbar_width, 1.5)));
+    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
+        healthbar_width,
+        healthbar_height,
+    )));
     let healthbar_img = assets.load("imgs/full_health.png");
     let healthbar = HealthbarBundle::new(
         healthbar_width,
+        healthbar_height,
         Vec3::new(0.0, 10.0, 0.0),
         healthbar_img,
         healthbar_mesh,
