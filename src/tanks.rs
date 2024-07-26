@@ -20,20 +20,19 @@ pub fn spawn_tank(
     let mut tank = (
         UnitBundle::new(
             "Tank".to_string(),
-            20.0 * SPEED_QUANTIFIER,
+            10.0 * SPEED_QUANTIFIER,
             50.0,
             150.0,
             Vec3::new(4., 2., 6.),
-            100.0,
+            1000.0,
             Timer::from_seconds(1.0, TimerMode::Repeating),
             tank_scene,
-            Vec3::new(50.0, 0.0, 50.0),
+            Vec3::new(50.0, 0.0, 150.0),
         ),
         Enemy,
     );
 
     if let Ok((barracks_transform, barracks_ent)) = barracks_q.get_single() {
-        println!("BARRACKS FOUND");
         tank.0.destination.0 = Some(barracks_transform.translation);
         tank.0.target.0 = Some(barracks_ent);
     }

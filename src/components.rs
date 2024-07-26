@@ -65,7 +65,7 @@ pub struct FireRate(pub Timer);
 #[derive(Component, Debug)]
 pub struct CurrentAction(pub Action);
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Action {
     Attack,
     Relocate,
