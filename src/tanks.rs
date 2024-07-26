@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{Enemy, HealthbarBundle, UnitBundle};
+use crate::{Barracks, Enemy, HealthbarBundle, UnitBundle, SPEED_QUANTIFIER};
 
 pub struct TanksPlugin;
 
@@ -10,13 +10,19 @@ impl Plugin for TanksPlugin {
     }
 }
 
-fn spawn_tank(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<Assets<Mesh>>) {
+pub fn spawn_tank(
+    mut cmds: Commands,
+    assets: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    barracks_q: Query<(&Transform, Entity), With<Barracks>>,
+) {
     let tank_scene = assets.load("tank.glb#Scene0");
-    let tank = (
+    let mut tank = (
         UnitBundle::new(
             "Tank".to_string(),
-            5000.0,
+            20.0 * SPEED_QUANTIFIER,
             50.0,
+            150.0,
             Vec3::new(4., 2., 6.),
             100.0,
             Timer::from_seconds(1.0, TimerMode::Repeating),
@@ -25,6 +31,12 @@ fn spawn_tank(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<A
         ),
         Enemy,
     );
+
+    if let Ok((barracks_transform, barracks_ent)) = barracks_q.get_single() {
+        println!("BARRACKS FOUND");
+        tank.0.destination.0 = Some(barracks_transform.translation);
+        tank.0.target.0 = Some(barracks_ent);
+    }
 
     let healthbar_width = 10.0;
     let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(healthbar_width, 1.5)));

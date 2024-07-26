@@ -29,6 +29,15 @@ pub struct Health {
     pub original: f32,
 }
 
+impl Health {
+    pub fn new(health: f32) -> Self {
+        Self {
+            current: health,
+            original: health,
+        }
+    }
+}
+
 #[derive(Component)]
 pub struct Destination(pub Option<Vec3>);
 
@@ -90,6 +99,7 @@ impl UnitBundle {
         name: String,
         speed: f32,
         damage: f32,
+        range: f32,
         size: Vec3,
         health: f32,
         fire_rate: Timer,
@@ -120,7 +130,7 @@ impl UnitBundle {
             },
             unit: Unit,
             fire_rate: FireRate(fire_rate),
-            range: Range(50.0),
+            range: Range(range),
             health: Health {
                 current: health,
                 original: health,
