@@ -8,8 +8,6 @@ use crate::{
     Friendly, MapBase, Selected,
 };
 
-const GREEN: Hsla = Hsla::hsl(120.0, 0.22, 0.3);
-
 pub struct MousePlugin;
 
 impl Plugin for MousePlugin {
@@ -37,11 +35,7 @@ fn set_drag_select(box_coords: Res<BoxCoords>, mut game_cmds: ResMut<GameCommand
     let width_z = (box_coords.global_start.z - box_coords.global_end.z).abs();
     let width_x = (box_coords.global_start.x - box_coords.global_end.x).abs();
 
-    if width_z > drag_threshold || width_x > drag_threshold {
-        game_cmds.drag_select = true;
-    } else {
-        game_cmds.drag_select = false;
-    }
+    game_cmds.drag_select = width_z > drag_threshold || width_x > drag_threshold;
 }
 
 fn set_box_coords(
@@ -94,9 +88,8 @@ fn set_mouse_coords(
 }
 
 pub fn drag_select(
-    mut cmds: Commands,
     mut gizmos: Gizmos,
-    unit_q: Query<(Entity, &Transform), With<Friendly>>,
+    mut friendly_q: Query<(&Transform, &mut Selected, &mut ColliderDebugColor), With<Friendly>>,
     box_coords: Res<BoxCoords>,
     game_cmds: Res<GameCommands>,
 ) {
@@ -119,7 +112,7 @@ pub fn drag_select(
     let min_z = start.z.min(end.z);
     let max_z = start.z.max(end.z);
 
-    for (unit_ent, unit_trans) in unit_q.iter() {
+    for (unit_trans, mut selected, mut collider_color) in friendly_q.iter_mut() {
         // check to see if units are within selection rectangle
         let unit_pos = unit_trans.translation;
         let in_box_bounds = unit_pos.x >= min_x
@@ -127,29 +120,22 @@ pub fn drag_select(
             && unit_pos.z >= min_z
             && unit_pos.z <= max_z;
 
-        if in_box_bounds {
-            cmds.entity(unit_ent).insert((
-                // ColliderDebugColor(Color::hsla(120.0, 0.22, 0.3, 0.0)),
-                ColliderDebugColor(GREEN),
-                Selected,
-            ));
+        selected.0 = in_box_bounds;
+        if selected.0 {
+            collider_color.0.alpha = 1.0;
         } else {
-            cmds.entity(unit_ent)
-                .remove::<Selected>()
-                .insert(ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)));
+            collider_color.0.alpha = 0.0;
         }
     }
 }
 
 pub fn single_select(
-    mut cmds: Commands,
     rapier_context: Res<RapierContext>,
     cam_q: Query<(&Camera, &GlobalTransform)>,
-    select_q: Query<(Entity, &Selected)>,
+    mut select_q: Query<(Entity, &mut Selected, &mut ColliderDebugColor), With<Friendly>>,
     mouse_coords: Res<MouseCoords>,
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
-    commandable_q: Query<&Friendly>,
 ) {
     if !input.just_released(MouseButton::Left) || game_cmds.drag_select {
         return;
@@ -170,41 +156,39 @@ pub fn single_select(
     );
 
     if let Some((ent, _)) = hit {
-        if commandable_q.get(ent).is_ok() {
-            // deselect all currently selected entities
-            for (selected_entity, _) in select_q.iter() {
-                cmds.entity(selected_entity)
-                    .insert(ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)))
-                    .remove::<Selected>();
-            }
-
-            // select unit
-            if !select_q.contains(ent) {
-                cmds.entity(ent)
-                    .insert((ColliderDebugColor(GREEN), Selected));
+        // deselect all currently selected entities
+        for (selected_entity, mut selected, mut collider_color) in select_q.iter_mut() {
+            let tmp = selected_entity.index() == ent.index();
+            if tmp && !selected.0 {
+                selected.0 = true;
+                collider_color.0.alpha = 1.0;
+            } else {
+                selected.0 = false;
+                collider_color.0.alpha = 0.0;
             }
         }
     }
 }
 
 pub fn deselect_all(
-    mut cmds: Commands,
-    mut select_q: Query<Entity, With<Selected>>,
+    mut select_q: Query<(&mut Selected, &mut ColliderDebugColor), With<Selected>>,
     input: Res<ButtonInput<MouseButton>>,
 ) {
     if input.just_pressed(MouseButton::Right) {
-        for ent in select_q.iter_mut() {
-            println!("Unit deselected");
-            cmds.entity(ent)
-                .insert(ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)));
-            cmds.entity(ent).remove::<Selected>();
+        for (mut selected, mut collider_color) in select_q.iter_mut() {
+            selected.0 = false;
+            collider_color.0.alpha = 1.0;
         }
     }
 }
 
 fn set_selected(mut game_cmds: ResMut<GameCommands>, select_q: Query<&Selected>) {
-    let selected = !select_q.is_empty();
-    game_cmds.selected = selected;
+    game_cmds.selected = false;
+    for selected in select_q.iter() {
+        if selected.0 {
+            game_cmds.selected = true;
+        }
+    }
 }
 
 fn change_cursor(mut window_q: Query<&mut Window, With<PrimaryWindow>>, cursor: Res<CustomCursor>) {

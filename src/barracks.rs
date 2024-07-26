@@ -3,7 +3,7 @@ use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider, render::ColliderDeb
 
 use crate::{
     tanks::spawn_tank, Barracks, BuildUnitEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
-    PurchaseSoldierRequestEv, UnitBundle, SPEED_QUANTIFIER,
+    PurchaseSoldierRequestEv, Selected, UnitBundle, SPEED_QUANTIFIER,
 };
 
 pub struct BarracksPlugin;
@@ -79,6 +79,8 @@ fn build_unit(
             assets.load("soldier_animations.glb#Scene0"),
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
+        Selected(false),
+        ColliderDebugColor(Hsla::new(120.0, 0.22, 0.3, 0.0)),
         Friendly,
     );
 

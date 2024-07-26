@@ -3,7 +3,7 @@ use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardT
 use bevy_rapier3d::prelude::*;
 
 #[derive(Component)]
-pub struct Selected;
+pub struct Selected(pub bool);
 
 #[derive(Component)]
 pub struct Speed(pub f32);
@@ -72,7 +72,7 @@ pub enum Action {
 #[derive(Bundle)]
 pub struct UnitBundle {
     pub collider: Collider,
-    pub collider_debug_color: ColliderDebugColor,
+    // pub collider_debug_color: ColliderDebugColor,
     pub damping: Damping,
     pub external_impulse: ExternalImpulse,
     pub name: Name,
@@ -106,7 +106,7 @@ impl UnitBundle {
     ) -> Self {
         Self {
             collider: Collider::cuboid(size.x, size.y, size.z),
-            collider_debug_color: ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)),
+            // collider_debug_color: ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)),
             damping: Damping {
                 linear_damping: 5.0,
                 ..default()
