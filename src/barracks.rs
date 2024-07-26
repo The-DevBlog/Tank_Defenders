@@ -35,10 +35,15 @@ fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResM
     );
 
     let healthbar_width = 45.0;
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(healthbar_width, 2.5)));
+    let healthbar_height = 2.5;
+    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
+        healthbar_width,
+        healthbar_height,
+    )));
     let healthbar_img = assets.load("imgs/full_health.png");
     let healthbar = HealthbarBundle::new(
         healthbar_width,
+        healthbar_height,
         Vec3::new(0.0, 22.5, 0.0),
         healthbar_img,
         healthbar_mesh,
@@ -67,8 +72,9 @@ fn build_unit(
             5.0 * SPEED_QUANTIFIER,
             5.0,
             50.0,
-            Vec3::new(2., 2., 2.),
             50.0,
+            Vec3::new(2., 2., 2.),
+            assets.load("audio/rifle_fire.ogg"),
             Timer::from_seconds(0.25, TimerMode::Repeating),
             assets.load("soldier_animations.glb#Scene0"),
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
@@ -76,14 +82,18 @@ fn build_unit(
         Friendly,
     );
 
-    soldier.0.audio.source = assets.load("audio/rifle_fire.ogg");
     soldier.0.destination.0 = Some(Vec3::new(pos.x - 100.0, 1.0, pos.z + 60.0));
 
+    let healthbar_height = 1.0;
     let healthbar_width = 5.0;
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(healthbar_width, 1.0)));
+    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
+        healthbar_width,
+        healthbar_height,
+    )));
     let healthbar_img = assets.load("imgs/full_health.png");
     let healthbar = HealthbarBundle::new(
         healthbar_width,
+        healthbar_height,
         Vec3::new(0.0, 4.5, 0.0),
         healthbar_img,
         healthbar_mesh,

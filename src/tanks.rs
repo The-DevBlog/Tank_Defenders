@@ -23,8 +23,9 @@ pub fn spawn_tank(
             15.0 * SPEED_QUANTIFIER,
             50.0,
             125.0,
-            Vec3::new(4., 2., 6.),
             1000.0,
+            Vec3::new(4., 2., 6.),
+            assets.load("audio/tank_fire.ogg"),
             Timer::from_seconds(1.5, TimerMode::Repeating),
             tank_scene,
             Vec3::new(50.0, 0.0, 100.0),
@@ -32,18 +33,21 @@ pub fn spawn_tank(
         Enemy,
     );
 
-    tank.0.audio.source = assets.load("audio/tank_fire.ogg");
-
     if let Ok((barracks_transform, barracks_ent)) = barracks_q.get_single() {
         tank.0.destination.0 = Some(barracks_transform.translation);
         tank.0.target.0 = Some(barracks_ent);
     }
 
+    let healthbar_height = 1.5;
     let healthbar_width = 10.0;
-    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(healthbar_width, 1.5)));
+    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
+        healthbar_width,
+        healthbar_height,
+    )));
     let healthbar_img = assets.load("imgs/full_health.png");
     let healthbar = HealthbarBundle::new(
         healthbar_width,
+        healthbar_height,
         Vec3::new(0.0, 10.0, 0.0),
         healthbar_img,
         healthbar_mesh,
