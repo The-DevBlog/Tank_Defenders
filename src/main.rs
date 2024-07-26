@@ -13,7 +13,6 @@ mod utils;
 
 use audio_controller::AudioControllerPlugin;
 use barracks::BarracksPlugin;
-use bevy_kira_audio::prelude::*;
 use camera::CameraPlugin;
 use components::*;
 use events::*;
@@ -35,13 +34,11 @@ const MAP_SIZE: f32 = 400.0;
 
 fn main() {
     App::new()
-        .add_event::<PurchaseSoldierRequestEv>()
-        .add_plugins(AudioControllerPlugin)
+        // .add_event::<PurchaseSoldierRequestEv>()
         .add_plugins((
             EventsPlugin,
             DefaultPlugins,
-            AudioPlugin,
-            // AudioControllerPlugin,
+            AudioControllerPlugin,
             CameraPlugin,
             MapPlugin,
             HudPlugin,

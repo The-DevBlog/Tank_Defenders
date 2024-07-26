@@ -1,5 +1,4 @@
-use bevy::prelude::*;
-use bevy_kira_audio::{Audio, AudioChannel, AudioInstance};
+use bevy::{audio::PlaybackMode, prelude::*};
 use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle};
 use bevy_rapier3d::prelude::*;
 
@@ -13,15 +12,7 @@ pub struct Speed(pub f32);
 pub struct Enemy;
 
 #[derive(Component)]
-pub struct MyAssets {
-    pub shoot_audio: Option<Handle<bevy_kira_audio::AudioSource>>,
-}
-
-// #[derive(Component)]
-// pub struct AudioTest(pub Option<Handle<AudioInstance>>);
-
-#[derive(Component)]
-pub struct AudioTest(pub Option<AudioChannel>);
+pub struct MyAudio;
 
 #[derive(Component)]
 pub struct Damage(pub f32);
@@ -72,9 +63,6 @@ pub enum Action {
     None,
 }
 
-// #[derive(Component)]
-// pub struct FireAudio(pub Handle<Source>);
-
 #[derive(Bundle)]
 pub struct UnitBundle {
     pub collider: Collider,
@@ -84,17 +72,17 @@ pub struct UnitBundle {
     pub rigid_body: RigidBody,
     pub speed: Speed,
     pub destination: Destination,
-    pub audio_test: AudioTest,
     pub unit: Unit,
     pub target: Target,
+    pub my_audio: MyAudio,
     pub locked_axis: LockedAxes,
     pub scene_bundle: SceneBundle,
     pub health: Health,
-    pub assets: MyAssets,
     pub range: Range,
     pub damage: Damage,
     pub fire_rate: FireRate,
     pub current_action: CurrentAction,
+    pub audio: AudioBundle,
 }
 
 impl UnitBundle {
@@ -116,14 +104,21 @@ impl UnitBundle {
             },
             external_impulse: ExternalImpulse::default(),
             name: Name::new(name),
+            my_audio: MyAudio,
             rigid_body: RigidBody::Dynamic,
             speed: Speed(speed),
             target: Target(None),
             damage: Damage(damage),
             destination: Destination(None),
-            assets: MyAssets { shoot_audio: None },
+            audio: AudioBundle {
+                settings: PlaybackSettings {
+                    paused: true,
+                    mode: PlaybackMode::Loop,
+                    ..default()
+                },
+                ..default()
+            },
             unit: Unit,
-            audio_test: AudioTest(None),
             fire_rate: FireRate(fire_rate),
             range: Range(50.0),
             health: Health {

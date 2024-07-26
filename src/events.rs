@@ -1,9 +1,8 @@
 use bevy::prelude::*;
-use bevy_kira_audio::AudioInstance;
 
 use crate::{
     resources::{Bank, MyAssets},
-    BankBalanceTxt, Barracks, Friendly, Health, Healthbar, HealthbarBundle, Unit, UnitBundle,
+    BankBalanceTxt, Barracks, Friendly, Health, Healthbar, HealthbarBundle, UnitBundle,
 };
 
 pub struct EventsPlugin;
@@ -105,9 +104,7 @@ fn build_unit(
         Friendly,
     );
 
-    let audio: Handle<AudioInstance> = assets.load("audio/rifle_fire.ogg");
-    soldier.0.audio_test.0 = Some(audio);
-    soldier.0.assets.shoot_audio = Some(assets.load("audio/rifle_fire.ogg"));
+    soldier.0.audio.source = assets.load("audio/rifle_fire.ogg");
     soldier.0.destination.0 = Some(Vec3::new(pos.x - 100.0, 1.0, pos.z + 60.0));
 
     let healthbar_width = 5.0;

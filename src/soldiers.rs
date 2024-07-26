@@ -132,7 +132,6 @@ fn attack(
     mut cmds: Commands,
     mut friendly_q: Query<
         (
-            // Entity,
             &Damage,
             &Range,
             &Transform,
@@ -146,56 +145,38 @@ fn attack(
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
     enemy_transform_q: Query<&Transform>,
-    // assets: Res<AssetServer>,
-    // mut audio_q: Query<&mut PlaybackSettings>,
 ) {
     let mut count = 0.0;
-    for (
-        // friendly_ent,
-        damage,
-        range,
-        transform,
-        mut destination,
-        target,
-        mut fire_rate,
-        mut current_action,
-    ) in friendly_q.iter_mut()
+    for (dmg, range, transform, mut destination, target, mut fire_rate, mut current_action) in
+        friendly_q.iter_mut()
     {
         if let Some(target_ent) = target.0 {
-            let Ok(enemy_transform) = enemy_transform_q.get(target_ent) else {
-                return;
-            };
+            // let Ok(enemy_transform) = enemy_transform_q.get(target_ent) else {
+            //     return;
+            // };
+            if let Ok(enemy_transform) = enemy_transform_q.get(target_ent) {
+                // only attack when enemy is in range
+                let distance = (transform.translation - enemy_transform.translation).length();
+                if distance <= range.0 {
+                    count = count + 1.0;
+                    destination.0 = None;
+                    fire_rate.0.tick(time.delta());
+                    current_action.0 = Action::Attack;
 
-            // only attack when enemy is in range
-            let distance = (transform.translation - enemy_transform.translation).length();
-            if distance <= range.0 {
-                count = count + 1.0;
-                destination.0 = None;
-                fire_rate.0.tick(time.delta());
-                current_action.0 = Action::Attack;
+                    if let Ok(mut health) = health_q.get_mut(target_ent) {
+                        if !fire_rate.0.finished() {
+                            return;
+                        }
 
-                if let Ok(mut health) = health_q.get_mut(target_ent) {
-                    if !fire_rate.0.finished() {
-                        return;
-                    }
+                        // println!("Tank Health: {}", health.0);
+                        cmds.trigger(InvokeDamage::new(dmg.0, target_ent));
+                        health.current -= dmg.0;
 
-                    // cmds.spawn(AudioBundle {
-                    //     source: assets.load(r"audio\rifle_fire.ogg"),
-                    //     settings: PlaybackSettings {
-                    //         // volume: Volume::Relative(VolumeLevel::new(0.5)),
-                    //         ..default()
-                    //     },
-                    //     ..default()
-                    // });
-
-                    // println!("Tank Health: {}", health.0);
-                    cmds.trigger(InvokeDamage::new(damage.0, target_ent));
-                    health.current -= damage.0;
-
-                    // despawn tank if health < 0
-                    if health.current < 0.0 {
-                        current_action.0 = Action::None;
-                        cmds.entity(target_ent).despawn_recursive();
+                        // despawn tank if health < 0
+                        if health.current < 0.0 {
+                            current_action.0 = Action::None;
+                            cmds.entity(target_ent).despawn_recursive();
+                        }
                     }
                 }
             }
