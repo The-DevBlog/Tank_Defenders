@@ -3,6 +3,7 @@ mod audio_controller;
 mod barracks;
 mod camera;
 mod components;
+mod debug;
 mod events;
 mod hud;
 mod map;
@@ -16,6 +17,7 @@ use audio_controller::AudioControllerPlugin;
 use barracks::BarracksPlugin;
 use camera::CameraPlugin;
 use components::*;
+use debug::DebugPlugin;
 use events::*;
 use hud::HudPlugin;
 use map::MapPlugin;
@@ -37,8 +39,7 @@ const SPEED_QUANTIFIER: f32 = 1000.0;
 
 fn main() {
     App::new()
-        // .add_event::<PurchaseSoldierRequestEv>()
-        .add_plugins(AnimationControllerPlugin)
+        .add_plugins((AnimationControllerPlugin, DebugPlugin))
         .add_plugins((
             EventsPlugin,
             DefaultPlugins,

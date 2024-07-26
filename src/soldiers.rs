@@ -19,7 +19,7 @@ impl Plugin for SoldiersPlugin {
                 command_attack,
                 attack,
                 attack_if_in_radius,
-            ),
+            ), // .chain(),
         );
     }
 }
@@ -194,6 +194,11 @@ fn attack_if_in_radius(
     enemy_q: Query<(Entity, &Transform), With<Enemy>>,
 ) {
     for (range, friendly_transform, mut target, action) in friendly_q.iter_mut() {
+        // dont attack if currently relocating
+        if action.0 == Action::Relocate {
+            return;
+        }
+
         for (enemy_ent, enemy_transform) in enemy_q.iter() {
             let distance = (friendly_transform.translation - enemy_transform.translation).length();
             if distance <= range.0 && target.0.is_none() && action.0 == Action::None {
