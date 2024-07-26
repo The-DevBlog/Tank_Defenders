@@ -21,9 +21,10 @@ pub fn spawn_tank(
 ) {
     let mut tank = (
         UnitBundle::new(
+            100,
             "Tank".to_string(),
             15.0 * SPEED_QUANTIFIER,
-            1.0,
+            50.0,
             125.0,
             1000.0,
             Vec3::new(4., 2., 6.),
@@ -37,6 +38,7 @@ pub fn spawn_tank(
 
     let mut tank_2 = (
         UnitBundle::new(
+            100,
             "Tank".to_string(),
             15.0 * SPEED_QUANTIFIER,
             50.0,

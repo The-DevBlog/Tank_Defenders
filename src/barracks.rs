@@ -68,6 +68,7 @@ fn build_unit(
     let pos = barracks_transform.translation;
     let mut soldier = (
         UnitBundle::new(
+            0,
             "Soldier".to_string(),
             5.0 * SPEED_QUANTIFIER,
             5.0,

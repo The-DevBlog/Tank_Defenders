@@ -76,6 +76,7 @@ fn update_bank_balance(
         txt.sections[0].value = new_balance;
     }
 }
+
 fn update_healthbar(
     trigger: Trigger<InvokeDamage>,
     health_q: Query<&Health>,
