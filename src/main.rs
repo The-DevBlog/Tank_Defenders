@@ -11,6 +11,7 @@ mod soldiers;
 mod tanks;
 mod utils;
 
+use animation_controller::AnimationControllerPlugin;
 use audio_controller::AudioControllerPlugin;
 use barracks::BarracksPlugin;
 use camera::CameraPlugin;
@@ -35,6 +36,7 @@ const MAP_SIZE: f32 = 400.0;
 fn main() {
     App::new()
         // .add_event::<PurchaseSoldierRequestEv>()
+        .add_plugins(AnimationControllerPlugin)
         .add_plugins((
             EventsPlugin,
             DefaultPlugins,
