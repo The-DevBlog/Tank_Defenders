@@ -196,7 +196,6 @@ fn attack_if_in_radius(
     for (range, friendly_transform, mut target, action) in friendly_q.iter_mut() {
         for (enemy_ent, enemy_transform) in enemy_q.iter() {
             let distance = (friendly_transform.translation - enemy_transform.translation).length();
-            println!("action: {:?}", action.0);
             if distance <= range.0 && target.0.is_none() && action.0 == Action::None {
                 target.0 = Some(enemy_ent);
             }
