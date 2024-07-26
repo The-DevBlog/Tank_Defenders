@@ -11,8 +11,8 @@ pub struct Speed(pub f32);
 #[derive(Component)]
 pub struct Enemy;
 
-#[derive(Component)]
-pub struct MyAudio;
+// #[derive(Component)]
+// pub struct MyAudio;
 
 #[derive(Component)]
 pub struct Damage(pub f32);
@@ -83,7 +83,7 @@ pub struct UnitBundle {
     pub destination: Destination,
     pub unit: Unit,
     pub target: Target,
-    pub my_audio: MyAudio,
+    // pub my_audio: MyAudio,
     pub locked_axis: LockedAxes,
     pub scene_bundle: SceneBundle,
     pub health: Health,
@@ -114,7 +114,7 @@ impl UnitBundle {
             },
             external_impulse: ExternalImpulse::default(),
             name: Name::new(name),
-            my_audio: MyAudio,
+            // my_audio: MyAudio,
             rigid_body: RigidBody::Dynamic,
             speed: Speed(speed),
             target: Target(None),
@@ -171,7 +171,6 @@ impl HealthbarBundle {
                 mesh: BillboardMeshHandle(mesh),
                 ..default()
             },
-            // width: HealthbarWidth(width),
             healthbar: Healthbar {
                 width: width,
                 y_position: translation.y,
