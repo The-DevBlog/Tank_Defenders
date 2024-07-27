@@ -22,7 +22,7 @@ fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResM
         SceneBundle {
             scene: assets.load("barracks.glb#Scene0"),
             transform: Transform {
-                translation: Vec3::new(MAP_SIZE / 2.0 - 50.0, 0.0, 0.0),
+                translation: Vec3::new(MAP_SIZE / 2.0 - 75.0, 0.0, -75.0),
                 rotation: Quat::from_euler(EulerRot::XYZ, 0.0, -1.1, 0.0),
                 ..default()
             },

@@ -57,6 +57,9 @@ pub struct BuySoldierBtn;
 pub struct BankBalanceTxt;
 
 #[derive(Component)]
+pub struct TankFactory;
+
+#[derive(Component)]
 pub struct Barracks;
 
 #[derive(Component)]
