@@ -1,13 +1,22 @@
 use bevy::prelude::*;
-use bevy_rapier3d::prelude::{Collider, RigidBody};
+use bevy_rapier3d::{
+    prelude::{Collider, RigidBody},
+    render::ColliderDebugColor,
+};
 
-use crate::{Health, HealthbarBundle, TankFactory, MAP_SIZE};
+use crate::{
+    BuildTankEv, BuyTankBtn, Friendly, Health, HealthbarBundle, PurchaseUnitRequestEv, Selected,
+    TankFactory, UnitBundle, UnitType, MAP_SIZE, SPEED_QUANTIFIER, TANK_COST, TANK_DMG,
+    TANK_HEALTH, TANK_RANGE, TANK_SPEED,
+};
 
 pub struct TankFactoryPlugin;
 
 impl Plugin for TankFactoryPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_tank_factory);
+        app.add_systems(Startup, spawn_tank_factory)
+            .add_systems(Update, buy_tank_click)
+            .observe(build_tank);
     }
 }
 
@@ -51,4 +60,76 @@ fn spawn_tank_factory(
     cmds.spawn(tank_factory).with_children(|parent| {
         parent.spawn(healthbar);
     });
+}
+
+fn build_tank(
+    _trigger: Trigger<BuildTankEv>,
+    tank_factory_q: Query<&Transform, With<TankFactory>>,
+    assets: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut cmds: Commands,
+) {
+    let Ok(barracks_transform) = tank_factory_q.get_single() else {
+        return;
+    };
+
+    let pos = barracks_transform.translation;
+    let mut tank = (
+        UnitBundle::new(
+            0,
+            "Tank".to_string(),
+            TANK_SPEED * SPEED_QUANTIFIER,
+            TANK_DMG,
+            TANK_RANGE,
+            TANK_HEALTH,
+            Vec3::new(4., 2., 6.),
+            assets.load("audio/tank_fire.ogg"),
+            Timer::from_seconds(0.25, TimerMode::Repeating),
+            assets.load("tank.glb#Scene0"),
+            Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
+        ),
+        Selected(false),
+        ColliderDebugColor(Hsla::new(120.0, 0.22, 0.3, 0.0)),
+        Friendly,
+    );
+
+    tank.0.destination.0 = Some(Vec3::new(pos.x - 100.0, 1.0, pos.z + 60.0));
+
+    let healthbar_height = 1.5;
+    let healthbar_width = 10.0;
+    let healthbar_mesh = meshes.add(Rectangle::from_size(Vec2::new(
+        healthbar_width,
+        healthbar_height,
+    )));
+    let healthbar_img = assets.load("imgs/full_health.png");
+    let healthbar = HealthbarBundle::new(
+        healthbar_width,
+        healthbar_height,
+        Vec3::new(0.0, 10.0, 0.0),
+        healthbar_img.clone(),
+        healthbar_mesh.clone(),
+    );
+
+    cmds.spawn(tank).with_children(|parent| {
+        parent.spawn(healthbar);
+    });
+
+    println!("Building Tank");
+}
+
+fn buy_tank_click(
+    mut cmds: Commands,
+    mut interact_q: Query<
+        (&Interaction, &mut BackgroundColor),
+        (Changed<Interaction>, With<BuyTankBtn>),
+    >,
+) {
+    for (interaction, mut _background_clr) in &mut interact_q {
+        match *interaction {
+            Interaction::Pressed => {
+                cmds.trigger(PurchaseUnitRequestEv::new(TANK_COST, UnitType::Tank))
+            }
+            _ => (),
+        }
+    }
 }

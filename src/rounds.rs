@@ -2,8 +2,8 @@ use bevy::prelude::*;
 
 use crate::{
     resources::RoundInfo, AdvanceRound, Barracks, Enemy, EnemyDestroyedEv, HealthbarBundle,
-    UnitBundle, MAP_SIZE, SPEED_QUANTIFIER, TANK_DMG, TANK_HEALTH, TANK_RANGE, TANK_REWARD,
-    TANK_SPEED,
+    UnitBundle, MAP_SIZE, SPEED_QUANTIFIER, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE,
+    TANK_REWARD, TANK_SPEED,
 };
 
 pub struct RoundsPlugin;
@@ -75,7 +75,7 @@ fn spawn_tanks(
                 TANK_HEALTH,
                 Vec3::new(4., 2., 6.),
                 assets.load("audio/tank_fire.ogg"),
-                Timer::from_seconds(1.5, TimerMode::Repeating),
+                Timer::from_seconds(TANK_FIRE_RATE, TimerMode::Repeating),
                 assets.load("tank.glb#Scene0"),
                 initial_position,
             ),

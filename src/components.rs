@@ -54,6 +54,9 @@ pub struct Range(pub f32);
 pub struct BuySoldierBtn;
 
 #[derive(Component)]
+pub struct BuyTankBtn;
+
+#[derive(Component)]
 pub struct BankBalanceTxt;
 
 #[derive(Component)]

@@ -45,28 +45,41 @@ impl InvokeDamage {
 }
 
 #[derive(Event)]
-pub struct BuildUnitEv;
+pub struct BuildSoldierEv;
 
 #[derive(Event)]
-pub struct PurchaseSoldierRequestEv {
+pub struct BuildTankEv;
+
+#[derive(Event)]
+pub struct PurchaseUnitRequestEv {
+    pub unit_type: UnitType,
     pub price: i32,
 }
 
-impl PurchaseSoldierRequestEv {
-    pub fn new(price: i32) -> Self {
-        PurchaseSoldierRequestEv { price }
+pub enum UnitType {
+    Soldier,
+    Tank,
+}
+
+impl PurchaseUnitRequestEv {
+    pub fn new(price: i32, unit_type: UnitType) -> Self {
+        PurchaseUnitRequestEv { price, unit_type }
     }
 }
 
 fn purchase_unit_request(
-    trigger: Trigger<PurchaseSoldierRequestEv>,
+    trigger: Trigger<PurchaseUnitRequestEv>,
     bank: Res<Bank>,
     mut cmds: Commands,
 ) {
     let unit_price = trigger.event().price;
     if bank.0 >= unit_price {
         cmds.trigger(UpdateBankBalanceEv::new(-unit_price));
-        cmds.trigger(BuildUnitEv);
+
+        match trigger.event().unit_type {
+            UnitType::Soldier => cmds.trigger(BuildSoldierEv),
+            UnitType::Tank => cmds.trigger(BuildTankEv),
+        }
     }
 }
 
