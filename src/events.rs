@@ -27,6 +27,9 @@ impl UpdateBankBalanceEv {
 }
 
 #[derive(Event)]
+pub struct EnemyDestroyedEv;
+
+#[derive(Event)]
 pub struct AdvanceRound;
 
 #[derive(Event)]
