@@ -27,6 +27,9 @@ impl UpdateBankBalanceEv {
 }
 
 #[derive(Event)]
+pub struct AdvanceRound;
+
+#[derive(Event)]
 pub struct InvokeDamage {
     pub amount: f32,
     pub target: Entity,
@@ -76,6 +79,7 @@ fn update_bank_balance(
         txt.sections[0].value = new_balance;
     }
 }
+
 fn update_healthbar(
     trigger: Trigger<InvokeDamage>,
     health_q: Query<&Health>,

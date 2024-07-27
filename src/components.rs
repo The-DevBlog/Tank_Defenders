@@ -3,6 +3,9 @@ use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardT
 use bevy_rapier3d::prelude::*;
 
 #[derive(Component)]
+pub struct Reward(pub i32);
+
+#[derive(Component)]
 pub struct Selected(pub bool);
 
 #[derive(Component)]
@@ -71,8 +74,8 @@ pub enum Action {
 
 #[derive(Bundle)]
 pub struct UnitBundle {
+    pub reward: Reward,
     pub collider: Collider,
-    // pub collider_debug_color: ColliderDebugColor,
     pub damping: Damping,
     pub external_impulse: ExternalImpulse,
     pub name: Name,
@@ -93,6 +96,7 @@ pub struct UnitBundle {
 
 impl UnitBundle {
     pub fn new(
+        reward: i32,
         name: String,
         speed: f32,
         damage: f32,
@@ -105,8 +109,8 @@ impl UnitBundle {
         translation: Vec3,
     ) -> Self {
         Self {
+            reward: Reward(reward),
             collider: Collider::cuboid(size.x, size.y, size.z),
-            // collider_debug_color: ColliderDebugColor(Hsla::new(0.0, 0.0, 0.0, 1.0)),
             damping: Damping {
                 linear_damping: 5.0,
                 ..default()

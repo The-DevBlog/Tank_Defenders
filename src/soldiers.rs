@@ -4,7 +4,7 @@ use bevy_rapier3d::prelude::*;
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
     Action, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health, InvokeDamage,
-    Range, Selected, Speed, Target, Unit, UpdateBankBalanceEv,
+    Range, Reward, Selected, Speed, Target, Unit, UpdateBankBalanceEv,
 };
 
 pub struct SoldiersPlugin;
@@ -155,29 +155,31 @@ fn attack(
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
     target_transform_q: Query<&Transform>,
+    reward_q: Query<&Reward>,
 ) {
     for (dmg, range, transform, mut destination, mut target, mut fire_rate, mut action) in
         unit_q.iter_mut()
     {
         if let Some(target_ent) = target.0 {
-            if let Ok(enemy_transform) = target_transform_q.get(target_ent) {
+            if let Ok(target_transform) = target_transform_q.get(target_ent) {
                 // only attack when enemy is in range
-                let distance = (transform.translation - enemy_transform.translation).length();
+                let distance = (transform.translation - target_transform.translation).length();
                 if distance <= range.0 {
                     destination.0 = None;
                     action.0 = Action::Attack;
-
-                    // Rotate to face the target
-                    // let direction =
-                    //     (enemy_transform.translation - transform.translation).normalize();
-                    // transform.rotation = Quat::from_rotation_arc(Vec3::X, direction);
 
                     if let Ok(mut health) = health_q.get_mut(target_ent) {
                         // Despawn if health < 0
                         if health.current <= 0.0 {
                             action.0 = Action::None;
-                            cmds.trigger(UpdateBankBalanceEv::new(100));
+
+                            if let Ok(reward) = reward_q.get(target_ent) {
+                                cmds.trigger(UpdateBankBalanceEv::new(reward.0));
+                            }
+
+                            println!("DESPAWN");
                             cmds.entity(target_ent).despawn_recursive();
+                            return;
                         }
 
                         if fire_rate.0.elapsed().is_zero() {
@@ -193,7 +195,7 @@ fn attack(
                         fire_rate.0.tick(time.delta());
                     }
                 } else {
-                    destination.0 = Some(enemy_transform.translation);
+                    destination.0 = Some(target_transform.translation);
                 }
             } else {
                 target.0 = None;
