@@ -2,15 +2,16 @@ use bevy::prelude::*;
 use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider, render::ColliderDebugColor};
 
 use crate::{
-    tanks::spawn_tanks, Barracks, BuildUnitEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
-    PurchaseSoldierRequestEv, Selected, UnitBundle, MAP_SIZE, SPEED_QUANTIFIER,
+    Barracks, BuildUnitEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
+    PurchaseSoldierRequestEv, Selected, UnitBundle, MAP_SIZE, SOLDIER_DMG, SOLDIER_HEALTH,
+    SOLDIER_RANGE, SOLDIER_SPEED, SPEED_QUANTIFIER,
 };
 
 pub struct BarracksPlugin;
 
 impl Plugin for BarracksPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_barracks.before(spawn_tanks))
+        app.add_systems(Startup, spawn_barracks)
             .add_systems(Update, buy_soldier_click)
             .observe(build_unit);
     }
@@ -70,10 +71,10 @@ fn build_unit(
         UnitBundle::new(
             0,
             "Soldier".to_string(),
-            5.0 * SPEED_QUANTIFIER,
-            5.0,
-            50.0,
-            100.0,
+            SOLDIER_SPEED * SPEED_QUANTIFIER,
+            SOLDIER_DMG,
+            SOLDIER_RANGE,
+            SOLDIER_HEALTH,
             Vec3::new(2., 2., 2.),
             assets.load("audio/rifle_fire.ogg"),
             Timer::from_seconds(0.25, TimerMode::Repeating),

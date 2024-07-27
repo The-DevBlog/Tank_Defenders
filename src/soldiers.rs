@@ -3,8 +3,8 @@ use bevy_rapier3d::prelude::*;
 
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health, InvokeDamage,
-    Range, Reward, Selected, Speed, Target, Unit, UpdateBankBalanceEv,
+    Action, CurrentAction, Damage, Destination, Enemy, EnemyDestroyedEv, FireRate, Friendly,
+    Health, InvokeDamage, Range, Reward, Selected, Speed, Target, Unit, UpdateBankBalanceEv,
 };
 
 pub struct SoldiersPlugin;
@@ -150,7 +150,7 @@ fn attack(
             &mut FireRate,
             &mut CurrentAction,
         ),
-        With<Unit>,
+        With<Friendly>,
     >,
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
@@ -179,6 +179,7 @@ fn attack(
 
                             println!("DESPAWN");
                             cmds.entity(target_ent).despawn_recursive();
+                            cmds.trigger(EnemyDestroyedEv);
                             return;
                         }
 
