@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider, render::ColliderDebugColor};
 
 use crate::{
-    Barracks, BuildUnitEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
-    PurchaseSoldierRequestEv, Selected, UnitBundle, MAP_SIZE, SOLDIER_DMG, SOLDIER_HEALTH,
-    SOLDIER_RANGE, SOLDIER_SPEED, SPEED_QUANTIFIER,
+    Barracks, BuildSoldierEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
+    PurchaseUnitRequestEv, Selected, UnitBundle, UnitType, MAP_SIZE, SOLDIER_COST, SOLDIER_DMG,
+    SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_SPEED, SPEED_QUANTIFIER,
 };
 
 pub struct BarracksPlugin;
@@ -13,7 +13,7 @@ impl Plugin for BarracksPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_barracks)
             .add_systems(Update, buy_soldier_click)
-            .observe(build_unit);
+            .observe(build_soldier);
     }
 }
 
@@ -55,8 +55,8 @@ fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResM
     });
 }
 
-fn build_unit(
-    _trigger: Trigger<BuildUnitEv>,
+fn build_soldier(
+    _trigger: Trigger<BuildSoldierEv>,
     barracks_q: Query<&Transform, With<Barracks>>,
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -77,7 +77,7 @@ fn build_unit(
             SOLDIER_HEALTH,
             Vec3::new(2., 2., 2.),
             assets.load("audio/rifle_fire.ogg"),
-            Timer::from_seconds(0.25, TimerMode::Repeating),
+            Timer::from_seconds(SOLDIER_FIRE_RATE, TimerMode::Repeating),
             assets.load("soldier_animations.glb#Scene0"),
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
@@ -106,7 +106,8 @@ fn build_unit(
     cmds.spawn(soldier).with_children(|parent| {
         parent.spawn(healthbar);
     });
-    println!("Building Unit");
+
+    println!("Building Soldier");
 }
 
 fn buy_soldier_click(
@@ -118,7 +119,9 @@ fn buy_soldier_click(
 ) {
     for (interaction, mut _background_clr) in &mut interact_q {
         match *interaction {
-            Interaction::Pressed => cmds.trigger(PurchaseSoldierRequestEv::new(50)),
+            Interaction::Pressed => {
+                cmds.trigger(PurchaseUnitRequestEv::new(SOLDIER_COST, UnitType::Soldier))
+            }
             _ => (),
         }
     }

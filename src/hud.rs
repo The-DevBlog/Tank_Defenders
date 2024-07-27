@@ -1,4 +1,4 @@
-use crate::{resources::Bank, BankBalanceTxt, BuySoldierBtn};
+use crate::{resources::Bank, BankBalanceTxt, BuySoldierBtn, BuyTankBtn, SOLDIER_COST, TANK_COST};
 use bevy::prelude::*;
 
 pub struct HudPlugin;
@@ -10,7 +10,7 @@ impl Plugin for HudPlugin {
 }
 
 fn spawn_hud(mut cmds: Commands, bank: Res<Bank>, assets: Res<AssetServer>) {
-    let bank_container = (
+    let hud_container = (
         NodeBundle {
             border_color: BorderColor {
                 0: Color::srgb(0.2, 0.19, 0.18),
@@ -67,13 +67,13 @@ fn spawn_hud(mut cmds: Commands, bank: Res<Bank>, assets: Res<AssetServer>) {
             },
             ..default()
         },
-        Name::new("Buy Solider Button"),
+        Name::new("Buy Solider Container"),
     );
 
     let buy_solider_txt = (
         TextBundle {
             text: Text::from_section(
-                "$50",
+                format!("${}", SOLDIER_COST),
                 TextStyle {
                     color: Color::srgb(1.0, 1.0, 0.0),
                     font_size: 25.0,
@@ -107,11 +107,64 @@ fn spawn_hud(mut cmds: Commands, bank: Res<Bank>, assets: Res<AssetServer>) {
         Name::new("Image"),
     );
 
-    cmds.spawn(bank_container).with_children(|parent| {
+    let buy_tank_container = (
+        NodeBundle {
+            style: Style {
+                width: Val::Auto,
+                height: Val::Px(50.0),
+                ..default()
+            },
+            ..default()
+        },
+        Name::new("Buy Tank Container"),
+    );
+
+    let buy_tank_txt = (
+        TextBundle {
+            text: Text::from_section(
+                format!("${}", TANK_COST),
+                TextStyle {
+                    color: Color::srgb(1.0, 1.0, 0.0),
+                    font_size: 25.0,
+                    ..default()
+                },
+            ),
+            style: Style {
+                margin: UiRect {
+                    top: Val::Auto,
+                    bottom: Val::Auto,
+                    ..default()
+                },
+                ..default()
+            },
+            ..default()
+        },
+        Name::new("Text"),
+    );
+
+    let buy_tank_img = (
+        ButtonBundle {
+            image: assets.load("imgs/buy_tank.png").into(),
+            style: Style {
+                height: Val::Px(50.0),
+                width: Val::Px(50.0),
+                ..default()
+            },
+            ..default()
+        },
+        BuyTankBtn,
+        Name::new("Image"),
+    );
+
+    cmds.spawn(hud_container).with_children(|parent| {
         parent.spawn(bank_balance_txt);
         parent.spawn(buy_soldier_container).with_children(|parent| {
             parent.spawn(buy_solider_txt);
             parent.spawn(buy_soldier_img);
+        });
+        parent.spawn(buy_tank_container).with_children(|parent| {
+            parent.spawn(buy_tank_txt);
+            parent.spawn(buy_tank_img);
         });
     });
 }
