@@ -11,6 +11,7 @@ mod mouse;
 mod resources;
 mod rounds;
 mod soldiers;
+mod tank_factory;
 mod tanks;
 mod utils;
 
@@ -27,6 +28,7 @@ use mouse::MousePlugin;
 use resources::ResourcesPlugin;
 use rounds::RoundsPlugin;
 use soldiers::SoldiersPlugin;
+use tank_factory::TankFactoryPlugin;
 use tanks::TanksPlugin;
 
 use bevy::prelude::*;
@@ -63,7 +65,12 @@ const TANK_REWARD: i32 = 100;
 
 fn main() {
     App::new()
-        .add_plugins((RoundsPlugin, AnimationControllerPlugin, DebugPlugin))
+        .add_plugins((
+            RoundsPlugin,
+            TankFactoryPlugin,
+            AnimationControllerPlugin,
+            DebugPlugin,
+        ))
         .add_plugins((
             EventsPlugin,
             DefaultPlugins,
