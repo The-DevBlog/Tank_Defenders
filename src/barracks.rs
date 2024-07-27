@@ -2,15 +2,15 @@ use bevy::prelude::*;
 use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider, render::ColliderDebugColor};
 
 use crate::{
-    tanks::spawn_tank, Barracks, BuildUnitEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
-    PurchaseSoldierRequestEv, Selected, UnitBundle, SPEED_QUANTIFIER,
+    tanks::spawn_tanks, Barracks, BuildUnitEv, BuySoldierBtn, Friendly, Health, HealthbarBundle,
+    PurchaseSoldierRequestEv, Selected, UnitBundle, MAP_SIZE, SPEED_QUANTIFIER,
 };
 
 pub struct BarracksPlugin;
 
 impl Plugin for BarracksPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_barracks.before(spawn_tank))
+        app.add_systems(Startup, spawn_barracks.before(spawn_tanks))
             .add_systems(Update, buy_soldier_click)
             .observe(build_unit);
     }
@@ -21,7 +21,7 @@ fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResM
         SceneBundle {
             scene: assets.load("barracks.glb#Scene0"),
             transform: Transform {
-                translation: Vec3::new(110.0, 0.0, -80.0),
+                translation: Vec3::new(MAP_SIZE / 2.0 - 50.0, 0.0, 0.0),
                 rotation: Quat::from_euler(EulerRot::XYZ, 0.0, -1.1, 0.0),
                 ..default()
             },
@@ -30,7 +30,7 @@ fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResM
         Collider::cuboid(16.0, 13.0, 16.0),
         RigidBody::Fixed,
         Barracks,
-        Health::new(500.0),
+        Health::new(2000.0),
         Name::new("Barracks"),
     );
 

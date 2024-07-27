@@ -27,6 +27,9 @@ impl UpdateBankBalanceEv {
 }
 
 #[derive(Event)]
+pub struct AdvanceRound;
+
+#[derive(Event)]
 pub struct InvokeDamage {
     pub amount: f32,
     pub target: Entity,

@@ -10,6 +10,7 @@ impl Plugin for ResourcesPlugin {
             .init_resource::<GameCommands>()
             .init_resource::<CustomCursor>()
             .init_resource::<MyAssets>()
+            .init_resource::<RoundInfo>()
             .add_systems(Startup, setup);
     }
 }
@@ -25,6 +26,32 @@ pub struct Bank(pub i32);
 impl Default for Bank {
     fn default() -> Self {
         Bank(1500)
+    }
+}
+
+#[derive(Resource)]
+pub struct RoundInfo {
+    pub round: i32,
+    pub enemy_tanks: i32,
+    pub enemy_soldiers: i32,
+    pub enemies_defeated: i32,
+}
+
+impl Default for RoundInfo {
+    fn default() -> Self {
+        RoundInfo {
+            round: 1,
+            enemy_tanks: 5,
+            enemy_soldiers: 0,
+            enemies_defeated: 0,
+        }
+    }
+}
+
+impl RoundInfo {
+    pub fn new_round(&mut self) {
+        self.round += 1;
+        self.enemies_defeated = 0;
     }
 }
 
@@ -80,12 +107,6 @@ impl Default for CustomCursor {
         }
     }
 }
-
-// #[derive(Resource)]
-// pub struct Animations {
-//     pub animations: Vec<AnimationNodeIndex>,
-//     pub graph: Handle<AnimationGraph>,
-// }
 
 fn setup(mut my_assets: ResMut<MyAssets>, assets: Res<AssetServer>) {
     my_assets.full_health = assets.load("imgs/full_health.png");

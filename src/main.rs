@@ -9,6 +9,7 @@ mod hud;
 mod map;
 mod mouse;
 mod resources;
+mod rounds;
 mod soldiers;
 mod tanks;
 mod utils;
@@ -24,6 +25,7 @@ use hud::HudPlugin;
 use map::MapPlugin;
 use mouse::MousePlugin;
 use resources::ResourcesPlugin;
+use rounds::RoundsPlugin;
 use soldiers::SoldiersPlugin;
 use tanks::TanksPlugin;
 
@@ -35,12 +37,12 @@ use bevy_rapier3d::{
     render::RapierDebugRenderPlugin,
 };
 
-const MAP_SIZE: f32 = 400.0;
+const MAP_SIZE: f32 = 800.0;
 const SPEED_QUANTIFIER: f32 = 1000.0;
 
 fn main() {
     App::new()
-        .add_plugins((AnimationControllerPlugin, DebugPlugin))
+        .add_plugins((RoundsPlugin, AnimationControllerPlugin, DebugPlugin))
         .add_plugins((
             EventsPlugin,
             DefaultPlugins,
