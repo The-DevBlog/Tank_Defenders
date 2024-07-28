@@ -16,6 +16,16 @@ impl Plugin for EventsPlugin {
 }
 
 #[derive(Event)]
+pub struct AudioQueuesEv(pub AudioQueues);
+
+#[derive(Debug)]
+pub enum AudioQueues {
+    Attack,
+    Relocate,
+    Select,
+}
+
+#[derive(Event)]
 pub struct UpdateBankBalanceEv {
     pub amount: i32,
 }

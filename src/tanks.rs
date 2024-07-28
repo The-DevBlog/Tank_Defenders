@@ -47,7 +47,6 @@ fn attack(
                         if health.current <= 0.0 {
                             action.0 = Action::None;
 
-                            println!("DESPAWN");
                             cmds.entity(target_ent).despawn_recursive();
                             return;
                         }

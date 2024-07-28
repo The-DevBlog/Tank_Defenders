@@ -15,9 +15,12 @@ impl Plugin for ResourcesPlugin {
     }
 }
 
-#[derive(Resource, Default, Debug)]
+#[derive(Resource, Default)]
 pub struct MyAssets {
     pub full_health: Handle<Image>,
+    pub audio_unit_select: Vec<Handle<AudioSource>>,
+    pub audio_unit_move: Vec<Handle<AudioSource>>,
+    pub audio_unit_attack: Vec<Handle<AudioSource>>,
 }
 
 #[derive(Resource, Debug)]
@@ -41,7 +44,7 @@ impl Default for RoundInfo {
     fn default() -> Self {
         RoundInfo {
             round: 1,
-            enemy_tanks: 5,
+            enemy_tanks: 8,
             enemy_soldiers: 0,
             enemies_defeated: 0,
         }
@@ -109,5 +112,6 @@ impl Default for CustomCursor {
 }
 
 fn setup(mut my_assets: ResMut<MyAssets>, assets: Res<AssetServer>) {
+    // TEXTURES
     my_assets.full_health = assets.load("imgs/full_health.png");
 }

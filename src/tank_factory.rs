@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{audio::Volume, prelude::*};
 use bevy_rapier3d::{
     prelude::{Collider, RigidBody},
     render::ColliderDebugColor,
@@ -7,7 +7,7 @@ use bevy_rapier3d::{
 use crate::{
     BuildTankEv, BuyTankBtn, Friendly, Health, HealthbarBundle, PurchaseUnitRequestEv, Selected,
     TankFactory, UnitBundle, UnitType, MAP_SIZE, SPEED_QUANTIFIER, TANK_COST, TANK_DMG,
-    TANK_HEALTH, TANK_RANGE, TANK_SPEED,
+    TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
 };
 
 pub struct TankFactoryPlugin;
@@ -84,7 +84,7 @@ fn build_tank(
             TANK_HEALTH,
             Vec3::new(4., 2., 6.),
             assets.load("audio/tank_fire.ogg"),
-            Timer::from_seconds(0.25, TimerMode::Repeating),
+            Timer::from_seconds(TANK_FIRE_RATE, TimerMode::Repeating),
             assets.load("tank.glb#Scene0"),
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
@@ -93,6 +93,7 @@ fn build_tank(
         Friendly,
     );
 
+    tank.0.audio.settings.volume = Volume::new(0.01);
     tank.0.destination.0 = Some(Vec3::new(pos.x - 100.0, 1.0, pos.z + 60.0));
 
     let healthbar_height = 1.5;
