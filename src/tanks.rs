@@ -9,7 +9,7 @@ pub struct TanksPlugin;
 
 impl Plugin for TanksPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (attack, attack_if_in_radius));
+        app.add_systems(Update, attack);
     }
 }
 
@@ -71,25 +71,6 @@ fn attack(
             }
         } else {
             action.0 = Action::None;
-        }
-    }
-}
-
-fn attack_if_in_radius(
-    mut enemy_q: Query<(&Range, &Transform, &mut Target), With<Enemy>>,
-    friendly_q: Query<(Entity, &Transform), With<Friendly>>,
-    barracks_q: Query<Entity, With<Barracks>>,
-) {
-    for (range, enemy_transform, mut target) in enemy_q.iter_mut() {
-        if let Ok(barracks_ent) = barracks_q.get_single() {
-            target.0 = Some(barracks_ent);
-        }
-
-        for (friendly_ent, friendly_transform) in friendly_q.iter() {
-            let distance = (enemy_transform.translation - friendly_transform.translation).length();
-            if distance <= range.0 {
-                target.0 = Some(friendly_ent);
-            }
         }
     }
 }

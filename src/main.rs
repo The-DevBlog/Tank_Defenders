@@ -1,3 +1,5 @@
+mod ai_enemy;
+mod ai_friendly;
 mod animation_controller;
 mod audio_controller;
 mod barracks;
@@ -15,6 +17,8 @@ mod tank_factory;
 mod tanks;
 mod utils;
 
+use ai_enemy::AiEnemyPlugin;
+use ai_friendly::AiFriendlyPlugin;
 use animation_controller::AnimationControllerPlugin;
 use audio_controller::AudioControllerPlugin;
 use barracks::BarracksPlugin;
@@ -37,7 +41,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_billboard::prelude::*;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
+    // render::RapierDebugRenderPlugin,
 };
 
 const MAP_SIZE: f32 = 800.0;
@@ -80,6 +84,8 @@ fn main() {
             TankFactoryPlugin,
             AnimationControllerPlugin,
             DebugPlugin,
+            AiFriendlyPlugin,
+            AiEnemyPlugin,
         ))
         .add_plugins((
             EventsPlugin,
