@@ -4,8 +4,8 @@ use bevy_rapier3d::prelude::{Collider, RigidBody};
 
 use crate::{
     resources::MyAssets, BorderSelect, BuildTankEv, BuyTankBtn, Friendly, Health, HealthbarBundle,
-    PurchaseUnitRequestEv, Selected, TankFactory, UnitBundle, UnitType, MAP_SIZE, SPEED_QUANTIFIER,
-    TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
+    PurchaseUnitRequestEv, Selected, Tank, TankFactory, UnitBundle, UnitType, MAP_SIZE,
+    SPEED_QUANTIFIER, TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
 };
 
 pub struct TankFactoryPlugin;
@@ -82,13 +82,14 @@ fn build_tank(
             TANK_RANGE,
             TANK_HEALTH,
             Vec3::new(4., 2., 6.),
-            assets.load("audio/tank_fire.ogg"),
+            my_assets.audio_tank_fire.clone(),
             Timer::from_seconds(TANK_FIRE_RATE, TimerMode::Repeating),
             assets.load("tank_friendly.glb#Scene0"),
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
         Selected(false),
         Friendly,
+        Tank,
     );
 
     tank.0.audio.settings.volume = Volume::new(0.01);

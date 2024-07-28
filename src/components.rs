@@ -51,6 +51,12 @@ impl Health {
 }
 
 #[derive(Component)]
+pub struct Tank;
+
+#[derive(Component)]
+pub struct Soldier;
+
+#[derive(Component)]
 pub struct Destination(pub Option<Vec3>);
 
 #[derive(Component)]

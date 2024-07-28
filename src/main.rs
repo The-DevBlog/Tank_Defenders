@@ -1,3 +1,4 @@
+mod ai_enemy;
 mod animation_controller;
 mod audio_controller;
 mod barracks;
@@ -5,6 +6,7 @@ mod camera;
 mod components;
 mod debug;
 mod events;
+mod friendly;
 mod hud;
 mod map;
 mod mouse;
@@ -15,6 +17,7 @@ mod tank_factory;
 mod tanks;
 mod utils;
 
+use ai_enemy::AiEnemyPlugin;
 use animation_controller::AnimationControllerPlugin;
 use audio_controller::AudioControllerPlugin;
 use barracks::BarracksPlugin;
@@ -22,6 +25,7 @@ use camera::CameraPlugin;
 use components::*;
 use debug::DebugPlugin;
 use events::*;
+use friendly::FriendlyPlugin;
 use hud::HudPlugin;
 use map::MapPlugin;
 use mouse::MousePlugin;
@@ -37,7 +41,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_billboard::prelude::*;
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
+    // render::RapierDebugRenderPlugin,
 };
 
 const MAP_SIZE: f32 = 800.0;
@@ -46,7 +50,7 @@ const SOLDIER_DMG: f32 = 5.0;
 const SOLDIER_HEALTH: f32 = 250.0;
 const SOLDIER_RANGE: f32 = 50.0;
 const SOLDIER_SPEED: f32 = 5.0;
-const SOLDIER_FIRE_RATE: f32 = 0.25;
+const SOLDIER_FIRE_RATE: f32 = 1.5;
 const SOLDIER_COST: i32 = 75;
 const TANK_DMG: f32 = 50.0;
 const TANK_SPEED: f32 = 50.0;
@@ -80,6 +84,8 @@ fn main() {
             TankFactoryPlugin,
             AnimationControllerPlugin,
             DebugPlugin,
+            FriendlyPlugin,
+            AiEnemyPlugin,
         ))
         .add_plugins((
             EventsPlugin,

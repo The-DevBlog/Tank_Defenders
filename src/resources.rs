@@ -19,6 +19,8 @@ impl Plugin for ResourcesPlugin {
 pub struct MyAssets {
     pub full_health: Handle<Image>,
     pub select_border: Handle<Image>,
+    pub audio_tank_fire: Handle<AudioSource>,
+    pub audio_rifle_fire: Handle<AudioSource>,
     pub audio_unit_select: Vec<Handle<AudioSource>>,
     pub audio_unit_move: Vec<Handle<AudioSource>>,
     pub audio_unit_attack: Vec<Handle<AudioSource>>,
@@ -45,7 +47,7 @@ impl Default for RoundInfo {
     fn default() -> Self {
         RoundInfo {
             round: 1,
-            enemy_tanks: 8,
+            enemy_tanks: 2,
             enemy_soldiers: 0,
             enemies_defeated: 0,
         }

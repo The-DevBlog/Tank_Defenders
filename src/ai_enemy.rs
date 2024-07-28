@@ -1,16 +1,34 @@
 use bevy::prelude::*;
 
 use crate::{
-    Action, AttackAudioEv, AttackAudioOptions, CurrentAction, Damage, Destination,
-    EnemyDestroyedEv, FireRate, Health, InvokeDamage, Range, Reward, Tank, Target,
-    UpdateBankBalanceEv,
+    Action, AttackAudioEv, AttackAudioOptions, Barracks, CurrentAction, Damage, Destination, Enemy,
+    FireRate, Friendly, Health, InvokeDamage, Range, Target,
 };
 
-pub struct TanksPlugin;
+pub struct AiEnemyPlugin;
 
-impl Plugin for TanksPlugin {
+impl Plugin for AiEnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, attack);
+        app.add_systems(Update, (attack, attack_if_in_radius));
+    }
+}
+
+fn attack_if_in_radius(
+    mut enemy_q: Query<(&Range, &Transform, &mut Target), With<Enemy>>,
+    friendly_q: Query<(Entity, &Transform), With<Friendly>>,
+    barracks_q: Query<Entity, With<Barracks>>,
+) {
+    for (range, enemy_transform, mut target) in enemy_q.iter_mut() {
+        if let Ok(barracks_ent) = barracks_q.get_single() {
+            target.0 = Some(barracks_ent);
+        }
+
+        for (friendly_ent, friendly_transform) in friendly_q.iter() {
+            let distance = (enemy_transform.translation - friendly_transform.translation).length();
+            if distance <= range.0 {
+                target.0 = Some(friendly_ent);
+            }
+        }
     }
 }
 
@@ -26,12 +44,11 @@ fn attack(
             &mut FireRate,
             &mut CurrentAction,
         ),
-        With<Tank>,
+        With<Enemy>,
     >,
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
     target_transform_q: Query<&Transform>,
-    reward_q: Query<&Reward>,
 ) {
     for (dmg, range, transform, mut destination, mut target, mut fire_rate, mut action) in
         unit_q.iter_mut()
@@ -49,12 +66,7 @@ fn attack(
                         if health.current <= 0.0 {
                             action.0 = Action::None;
 
-                            if let Ok(reward) = reward_q.get(target_ent) {
-                                cmds.trigger(UpdateBankBalanceEv::new(reward.0));
-                            }
-
                             cmds.entity(target_ent).despawn_recursive();
-                            cmds.trigger(EnemyDestroyedEv);
                             return;
                         }
 
