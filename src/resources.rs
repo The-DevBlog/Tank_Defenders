@@ -47,8 +47,8 @@ impl Default for RoundInfo {
     fn default() -> Self {
         RoundInfo {
             round: 1,
-            enemy_tanks: 2,
-            enemy_soldiers: 0,
+            enemy_tanks: 0,
+            enemy_soldiers: 30,
             enemies_defeated: 0,
         }
     }

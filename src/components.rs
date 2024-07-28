@@ -15,6 +15,12 @@ pub struct Speed(pub f32);
 pub struct Enemy;
 
 #[derive(Component)]
+pub struct EnemySoldier;
+
+#[derive(Component)]
+pub struct EnemyTank;
+
+#[derive(Component)]
 pub struct Damage(pub f32);
 
 #[derive(Component)]
