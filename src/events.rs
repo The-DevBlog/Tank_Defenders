@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_mod_billboard::BillboardMeshHandle;
 
 use crate::{
     resources::{Bank, MyAssets},
@@ -12,8 +11,7 @@ impl Plugin for EventsPlugin {
     fn build(&self, app: &mut App) {
         app.observe(purchase_unit_request)
             .observe(update_bank_balance)
-            .observe(update_healthbar)
-            .add_systems(Update, health);
+            .observe(update_healthbar);
     }
 }
 
@@ -142,14 +140,4 @@ fn update_healthbar(
             });
         }
     }
-}
-
-fn health(
-    mut q: Query<&mut BillboardMeshHandle, With<Healthbar>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-) {
-    // for mut m in q.iter_mut() {
-    //     // h = ViewVisibility::HIDDEN;
-    //     *m = BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(7.5, 7.5))));
-    // }
 }

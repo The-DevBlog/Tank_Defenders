@@ -118,7 +118,6 @@ fn build_tank(
     let select_border = (
         BillboardTextureBundle {
             texture: BillboardTextureHandle(my_assets.select_border.clone()),
-            mesh: BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(15.0, 15.0)))),
             ..default()
         },
         FriendlySelectBorder,

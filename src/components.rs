@@ -14,6 +14,12 @@ pub struct Speed(pub f32);
 #[derive(Component)]
 pub struct Enemy;
 
+// #[derive(Component)]
+// pub struct BorderSelect {
+//     pub visible: bool,
+//     pub bundle: BillboardTextureBundle,
+// }
+
 #[derive(Component)]
 pub struct Damage(pub f32);
 

@@ -110,7 +110,6 @@ pub fn drag_select(
     mut border_select_q: Query<&mut BillboardMeshHandle, With<FriendlySelectBorder>>,
     box_coords: Res<BoxCoords>,
     game_cmds: Res<GameCommands>,
-    my_assets: Res<MyAssets>,
     children_q: Query<&Children>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
@@ -141,37 +140,20 @@ pub fn drag_select(
             && unit_pos.z >= min_z
             && unit_pos.z <= max_z;
 
-        if let Ok(ent) = children_q.get(friendly_ent) {
-            // if let Ok(mut border_select) = border_select_q.get_mut(friendly_ent) {
-            println!("hello");
-            selected.0 = in_box_bounds;
-            if selected.0 {
-                // let select_border = (
-                //     BillboardTextureBundle {
-                //         texture: BillboardTextureHandle(my_assets.select_border.clone()),
-                //         mesh: BillboardMeshHandle(
-                //             meshes.add(Rectangle::from_size(Vec2::new(7.5, 7.5))),
-                //         ),
-                //         ..default()
-                //     },
-                //     FriendlySelectBorder,
-                //     Name::new("Border Select"),
-                // );
+        selected.0 = in_box_bounds;
 
-                // *border_select =
-                //     BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(7.5, 7.5))));
-
-                // collider_color.0.alpha = 1.0;
-                // *border_select = Visibility::Visible;
-            } else {
-                // *border_select = Visibility::Hidden;
-                // *border_select =
-                //     BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(7.5, 7.5))));
-
-                // collider_color.0.alpha = 0.0;
+        for child in children_q.iter_descendants(friendly_ent) {
+            if let Ok(mut billboard_mesh) = border_select_q.get_mut(child) {
+                if selected.0 {
+                    *billboard_mesh = BillboardMeshHandle(
+                        meshes.add(Rectangle::from_size(Vec2::new(15.0, 15.0))),
+                    );
+                } else {
+                    *billboard_mesh =
+                        BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(0.0, 0.0))));
+                }
             }
         }
-        // }
     }
 }
 
