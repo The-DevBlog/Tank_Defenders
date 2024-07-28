@@ -48,7 +48,7 @@ impl Default for RoundInfo {
         RoundInfo {
             round: 1,
             enemy_tanks: 0,
-            enemy_soldiers: 30,
+            enemy_soldiers: 100,
             enemies_defeated: 0,
         }
     }

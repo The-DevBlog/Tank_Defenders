@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     Action, AttackAudioEv, AttackAudioOptions, Barracks, CurrentAction, Damage, Destination, Enemy,
-    EnemySoldier, EnemyTank, FireRate, Friendly, Health, InvokeDamage, Range, Target,
+    EnemySoldier, EnemyTank, FireRate, Friendly, Health, InvokeDamage, Range, TankFactory, Target,
 };
 
 pub struct AiEnemyPlugin;
@@ -17,10 +17,15 @@ fn attack_if_in_radius(
     mut enemy_q: Query<(&Range, &Transform, &mut Target), With<Enemy>>,
     friendly_q: Query<(Entity, &Transform), With<Friendly>>,
     barracks_q: Query<Entity, With<Barracks>>,
+    tank_factory_q: Query<Entity, With<TankFactory>>,
 ) {
     for (range, enemy_transform, mut target) in enemy_q.iter_mut() {
         if let Ok(barracks_ent) = barracks_q.get_single() {
             target.0 = Some(barracks_ent);
+        } else {
+            if let Ok(tank_factory_ent) = tank_factory_q.get_single() {
+                target.0 = Some(tank_factory_ent);
+            }
         }
 
         for (friendly_ent, friendly_transform) in friendly_q.iter() {

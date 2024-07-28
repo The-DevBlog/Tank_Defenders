@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     resources::{MyAssets, RoundInfo},
     AdvanceRound, Barracks, Enemy, EnemyDestroyedEv, EnemySoldier, EnemyTank, HealthbarBundle,
-    Soldier, Tank, UnitBundle, MAP_SIZE, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH,
+    TankFactory, UnitBundle, MAP_SIZE, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH,
     SOLDIER_RANGE, SOLDIER_REWARD, SOLDIER_SPEED, SPEED_QUANTIFIER, TANK_DMG, TANK_FIRE_RATE,
     TANK_HEALTH, TANK_RANGE, TANK_REWARD, TANK_SPEED,
 };
@@ -124,15 +124,18 @@ fn spawn_soldiers(
         return;
     };
 
-    // Define the center of the arc and the radius
     let arc_center = barracks_transform.translation;
     let radius = MAP_SIZE - 30.0;
     let arc_angle = std::f32::consts::PI / 4.0; // 45 degrees arc
+    let soldiers_per_row = 40;
+    let row_spacing = 10.0; // Adjust the spacing between rows as needed
 
     for i in 0..round_info.enemy_soldiers {
-        let angle =
-            arc_angle * (i as f32 / (round_info.enemy_soldiers as f32 - 1.0)) - arc_angle / 2.0;
-        let x = arc_center.x - MAP_SIZE + 100.0;
+        let row = i / soldiers_per_row;
+        let col = i % soldiers_per_row;
+        let angle = arc_angle * (col as f32 / (soldiers_per_row as f32 - 1.0)) - arc_angle / 2.0;
+
+        let x = arc_center.x - MAP_SIZE + 150.0 - row as f32 * row_spacing;
         let z = arc_center.z + radius * angle.sin();
         let initial_position = Vec3::new(x, arc_center.y, z);
 
@@ -147,7 +150,7 @@ fn spawn_soldiers(
                 Vec3::new(2., 2., 2.),
                 my_assets.audio_rifle_fire.clone(),
                 Timer::from_seconds(SOLDIER_FIRE_RATE, TimerMode::Repeating),
-                assets.load("soldier.glb#Scene0"),
+                assets.load("soldier_animations.glb#Scene0"),
                 initial_position,
             ),
             EnemySoldier,
