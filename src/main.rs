@@ -30,6 +30,7 @@ use rounds::RoundsPlugin;
 use soldiers::SoldiersPlugin;
 use tank_factory::TankFactoryPlugin;
 use tanks::TanksPlugin;
+use utils::UtilsPlugin;
 
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -75,6 +76,7 @@ fn main() {
     App::new()
         .add_plugins((
             RoundsPlugin,
+            UtilsPlugin,
             TankFactoryPlugin,
             AnimationControllerPlugin,
             DebugPlugin,

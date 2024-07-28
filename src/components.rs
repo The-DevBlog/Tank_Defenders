@@ -14,17 +14,20 @@ pub struct Speed(pub f32);
 #[derive(Component)]
 pub struct Enemy;
 
-// #[derive(Component)]
-// pub struct BorderSelect {
-//     pub visible: bool,
-//     pub bundle: BillboardTextureBundle,
-// }
-
 #[derive(Component)]
 pub struct Damage(pub f32);
 
 #[derive(Component)]
-pub struct FriendlySelectBorder;
+pub struct BorderSelect {
+    pub width: f32,
+    pub height: f32,
+}
+
+impl BorderSelect {
+    pub fn new(width: f32, height: f32) -> Self {
+        Self { width, height }
+    }
+}
 
 #[derive(Component)]
 pub struct Target(pub Option<Entity>);

@@ -1,12 +1,11 @@
 use bevy::prelude::*;
-use bevy_mod_billboard::{BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle};
-use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider, render::ColliderDebugColor};
+use bevy_mod_billboard::{BillboardTextureBundle, BillboardTextureHandle};
+use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider};
 
 use crate::{
-    resources::MyAssets, Barracks, BuildSoldierEv, BuySoldierBtn, Friendly, FriendlySelectBorder,
-    Health, HealthbarBundle, PurchaseUnitRequestEv, Selected, UnitBundle, UnitType, MAP_SIZE,
-    SOLDIER_COST, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_SPEED,
-    SPEED_QUANTIFIER,
+    resources::MyAssets, Barracks, BorderSelect, BuildSoldierEv, BuySoldierBtn, Friendly, Health,
+    HealthbarBundle, PurchaseUnitRequestEv, Selected, UnitBundle, UnitType, MAP_SIZE, SOLDIER_COST,
+    SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_SPEED, SPEED_QUANTIFIER,
 };
 
 pub struct BarracksPlugin;
@@ -19,7 +18,12 @@ impl Plugin for BarracksPlugin {
     }
 }
 
-fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<Assets<Mesh>>) {
+fn spawn_barracks(
+    mut cmds: Commands,
+    assets: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    my_assets: Res<MyAssets>,
+) {
     let barracks = (
         SceneBundle {
             scene: assets.load("barracks.glb#Scene0"),
@@ -85,7 +89,6 @@ fn build_soldier(
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
         Selected(false),
-        // ColliderDebugColor(Hsla::new(120.0, 0.22, 0.3, 0.0)),
         Friendly,
     );
 
@@ -109,14 +112,11 @@ fn build_soldier(
     let select_border = (
         BillboardTextureBundle {
             texture: BillboardTextureHandle(my_assets.select_border.clone()),
-            // mesh: BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(7.5, 7.5)))),
             ..default()
         },
-        FriendlySelectBorder,
+        BorderSelect::new(7.5, 7.5),
         Name::new("Border Select"),
     );
-
-    // // let t = select_border.0.visibility = Visibility::;
 
     cmds.spawn(soldier).with_children(|parent| {
         parent.spawn(healthbar);

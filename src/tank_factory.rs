@@ -1,16 +1,11 @@
 use bevy::{audio::Volume, prelude::*};
-use bevy_mod_billboard::{
-    Billboard, BillboardDepth, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
-};
-use bevy_rapier3d::{
-    prelude::{Collider, RigidBody},
-    render::ColliderDebugColor,
-};
+use bevy_mod_billboard::{BillboardTextureBundle, BillboardTextureHandle};
+use bevy_rapier3d::prelude::{Collider, RigidBody};
 
 use crate::{
-    resources::MyAssets, BuildTankEv, BuyTankBtn, Friendly, FriendlySelectBorder, Health,
-    HealthbarBundle, PurchaseUnitRequestEv, Selected, TankFactory, UnitBundle, UnitType, MAP_SIZE,
-    SPEED_QUANTIFIER, TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
+    resources::MyAssets, BorderSelect, BuildTankEv, BuyTankBtn, Friendly, Health, HealthbarBundle,
+    PurchaseUnitRequestEv, Selected, TankFactory, UnitBundle, UnitType, MAP_SIZE, SPEED_QUANTIFIER,
+    TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
 };
 
 pub struct TankFactoryPlugin;
@@ -93,7 +88,6 @@ fn build_tank(
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
         Selected(false),
-        // ColliderDebugColor(Hsla::new(120.0, 0.22, 0.3, 0.0)),
         Friendly,
     );
 
@@ -120,7 +114,7 @@ fn build_tank(
             texture: BillboardTextureHandle(my_assets.select_border.clone()),
             ..default()
         },
-        FriendlySelectBorder,
+        BorderSelect::new(15.0, 15.0),
         Name::new("Border Select"),
     );
 

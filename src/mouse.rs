@@ -1,15 +1,11 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_mod_billboard::{
-    Billboard, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
-};
-use bevy_rapier3d::{pipeline::QueryFilter, plugin::RapierContext, render::ColliderDebugColor};
+use bevy_rapier3d::{pipeline::QueryFilter, plugin::RapierContext};
 use bevy_rts_camera::RtsCamera;
 
 use crate::{
-    resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords, MyAssets},
+    resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords},
     soldiers::set_unit_destination,
-    AudioQueues, AudioQueuesEv, Enemy, Friendly, FriendlySelectBorder, Healthbar, MapBase,
-    Selected,
+    AudioQueues, AudioQueuesEv, Enemy, Friendly, MapBase, Selected,
 };
 
 pub struct MousePlugin;
@@ -106,12 +102,9 @@ fn set_mouse_coords(
 
 pub fn drag_select(
     mut gizmos: Gizmos,
-    mut friendly_q: Query<(Entity, &Transform, &mut Selected), With<Friendly>>,
-    mut border_select_q: Query<&mut BillboardMeshHandle, With<FriendlySelectBorder>>,
+    mut friendly_q: Query<(&Transform, &mut Selected), With<Friendly>>,
     box_coords: Res<BoxCoords>,
     game_cmds: Res<GameCommands>,
-    children_q: Query<&Children>,
-    mut meshes: ResMut<Assets<Mesh>>,
 ) {
     if !game_cmds.drag_select {
         return;
@@ -132,7 +125,7 @@ pub fn drag_select(
     let min_z = start.z.min(end.z);
     let max_z = start.z.max(end.z);
 
-    for (friendly_ent, friendly_trans, mut selected) in friendly_q.iter_mut() {
+    for (friendly_trans, mut selected) in friendly_q.iter_mut() {
         // check to see if units are within selection rectangle
         let unit_pos = friendly_trans.translation;
         let in_box_bounds = unit_pos.x >= min_x
@@ -141,19 +134,6 @@ pub fn drag_select(
             && unit_pos.z <= max_z;
 
         selected.0 = in_box_bounds;
-
-        for child in children_q.iter_descendants(friendly_ent) {
-            if let Ok(mut billboard_mesh) = border_select_q.get_mut(child) {
-                if selected.0 {
-                    *billboard_mesh = BillboardMeshHandle(
-                        meshes.add(Rectangle::from_size(Vec2::new(15.0, 15.0))),
-                    );
-                } else {
-                    *billboard_mesh =
-                        BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(0.0, 0.0))));
-                }
-            }
-        }
     }
 }
 
@@ -161,7 +141,7 @@ pub fn single_select(
     rapier_context: Res<RapierContext>,
     cam_q: Query<(&Camera, &GlobalTransform)>,
     enemy_q: Query<Entity, With<Enemy>>,
-    mut select_q: Query<(Entity, &mut Selected, &mut ColliderDebugColor), With<Friendly>>,
+    mut select_q: Query<(Entity, &mut Selected), With<Friendly>>,
     mouse_coords: Res<MouseCoords>,
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
@@ -191,28 +171,23 @@ pub fn single_select(
         }
 
         // deselect all currently selected entities
-        for (selected_entity, mut selected, mut collider_color) in select_q.iter_mut() {
+        for (selected_entity, mut selected) in select_q.iter_mut() {
             let tmp = selected_entity.index() == ent.index();
-            if tmp && !selected.0 {
+            selected.0 = tmp && !selected.0;
+            if selected.0 {
                 cmds.trigger(AudioQueuesEv(AudioQueues::Select));
-                selected.0 = true;
-                collider_color.0.alpha = 1.0;
-            } else {
-                selected.0 = false;
-                collider_color.0.alpha = 0.0;
             }
         }
     }
 }
 
 pub fn deselect_all(
-    mut select_q: Query<(&mut Selected, &mut ColliderDebugColor), With<Selected>>,
+    mut select_q: Query<&mut Selected, With<Selected>>,
     input: Res<ButtonInput<MouseButton>>,
 ) {
     if input.just_pressed(MouseButton::Right) {
-        for (mut selected, mut collider_color) in select_q.iter_mut() {
+        for mut selected in select_q.iter_mut() {
             selected.0 = false;
-            collider_color.0.alpha = 0.0;
         }
     }
 }
