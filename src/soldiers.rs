@@ -72,7 +72,9 @@ pub fn set_unit_destination(
         println!("Unit Moving to ({}, {})", destination.x, destination.y);
     }
 
-    cmds.trigger(AudioQueuesEv(AudioQueues::Relocate));
+    if game_cmds.selected {
+        cmds.trigger(AudioQueuesEv(AudioQueues::Relocate));
+    }
 }
 
 fn move_unit(
