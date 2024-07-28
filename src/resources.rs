@@ -19,6 +19,7 @@ impl Plugin for ResourcesPlugin {
 pub struct MyAssets {
     pub full_health: Handle<Image>,
     pub select_border: Handle<Image>,
+    pub cursor_attack: Handle<Image>,
     pub audio_unit_select: Vec<Handle<AudioSource>>,
     pub audio_unit_move: Vec<Handle<AudioSource>>,
     pub audio_unit_attack: Vec<Handle<AudioSource>>,
@@ -114,6 +115,7 @@ impl Default for CustomCursor {
 
 fn setup(mut my_assets: ResMut<MyAssets>, assets: Res<AssetServer>) {
     // TEXTURES
+    my_assets.cursor_attack = assets.load("imgs/cursor_attack.png");
     my_assets.select_border = assets.load("imgs/select_border.png");
     my_assets.full_health = assets.load("imgs/full_health.png");
 }
