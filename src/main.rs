@@ -1,5 +1,4 @@
 mod ai_enemy;
-mod ai_friendly;
 mod animation_controller;
 mod audio_controller;
 mod barracks;
@@ -7,6 +6,7 @@ mod camera;
 mod components;
 mod debug;
 mod events;
+mod friendly;
 mod hud;
 mod map;
 mod mouse;
@@ -18,7 +18,6 @@ mod tanks;
 mod utils;
 
 use ai_enemy::AiEnemyPlugin;
-use ai_friendly::AiFriendlyPlugin;
 use animation_controller::AnimationControllerPlugin;
 use audio_controller::AudioControllerPlugin;
 use barracks::BarracksPlugin;
@@ -26,6 +25,7 @@ use camera::CameraPlugin;
 use components::*;
 use debug::DebugPlugin;
 use events::*;
+use friendly::FriendlyPlugin;
 use hud::HudPlugin;
 use map::MapPlugin;
 use mouse::MousePlugin;
@@ -84,7 +84,7 @@ fn main() {
             TankFactoryPlugin,
             AnimationControllerPlugin,
             DebugPlugin,
-            AiFriendlyPlugin,
+            FriendlyPlugin,
             AiEnemyPlugin,
         ))
         .add_plugins((

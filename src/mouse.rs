@@ -3,8 +3,8 @@ use bevy_rapier3d::{pipeline::QueryFilter, plugin::RapierContext};
 use bevy_rts_camera::RtsCamera;
 
 use crate::{
+    friendly::set_unit_destination,
     resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords},
-    soldiers::set_unit_destination,
     AudioQueuesEv, Enemy, Friendly, MapBase, Selected, UnitAudio,
 };
 
