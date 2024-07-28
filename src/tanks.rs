@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use crate::{
-    Action, Barracks, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health,
-    InvokeDamage, Range, Target,
+    Action, CurrentAction, Damage, Destination, Enemy, FireRate, Health, InvokeDamage, Range,
+    Target,
 };
 
 pub struct TanksPlugin;

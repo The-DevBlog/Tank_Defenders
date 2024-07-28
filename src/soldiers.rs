@@ -3,19 +3,16 @@ use bevy_rapier3d::prelude::*;
 
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, UnitAudio, AudioQueuesEv, CurrentAction, Damage, Destination, Enemy,
-    EnemyDestroyedEv, FireRate, Friendly, Health, InvokeDamage, Range, Reward, Selected, Speed,
-    Target, Unit, UpdateBankBalanceEv,
+    Action, AudioQueuesEv, CurrentAction, Damage, Destination, EnemyDestroyedEv, FireRate,
+    Friendly, Health, InvokeDamage, Range, Reward, Selected, Speed, Target, Unit, UnitAudio,
+    UpdateBankBalanceEv,
 };
 
 pub struct SoldiersPlugin;
 
 impl Plugin for SoldiersPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            (set_unit_destination, move_unit, command_attack, attack),
-        );
+        app.add_systems(Update, (set_unit_destination, move_unit, attack));
     }
 }
 
@@ -108,57 +105,6 @@ fn move_unit(
             }
         }
     }
-}
-
-fn command_attack(
-    rapier_context: Res<RapierContext>,
-    mut select_q: Query<(&Selected, &mut Target), With<Selected>>,
-    enemy_q: Query<Entity, With<Enemy>>,
-    cam_q: Query<(&Camera, &GlobalTransform)>,
-    mouse_coords: Res<MouseCoords>,
-    input: Res<ButtonInput<MouseButton>>,
-    mut cursor: ResMut<CustomCursor>,
-    game_cmds: Res<GameCommands>,
-    mut cmds: Commands,
-) {
-    if !game_cmds.selected {
-        cursor.state = CursorState::Normal;
-        return;
-    }
-    let (cam, cam_trans) = cam_q.single();
-
-    let Some(ray) = cam.viewport_to_world(cam_trans, mouse_coords.local) else {
-        return;
-    };
-
-    let hit = rapier_context.cast_ray(
-        ray.origin,
-        ray.direction.into(),
-        f32::MAX,
-        true,
-        QueryFilter::only_dynamic(),
-    );
-
-    if let Some((enemy_ent, _)) = hit {
-        // if ray is cast onto enemy
-        if enemy_q.get(enemy_ent).is_ok() {
-            cursor.state = CursorState::Attack;
-
-            // if enemy is clicked, command friendlies to attack
-            if input.just_pressed(MouseButton::Left) {
-                // println!("ATTACK");
-                cmds.trigger(AudioQueuesEv(UnitAudio::Attack));
-                for (selected, mut target) in select_q.iter_mut() {
-                    if selected.0 {
-                        target.0 = Some(enemy_ent);
-                    }
-                }
-            }
-            return;
-        }
-    }
-
-    cursor.state = CursorState::Relocate;
 }
 
 fn attack(
