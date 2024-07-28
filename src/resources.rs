@@ -19,6 +19,8 @@ impl Plugin for ResourcesPlugin {
 pub struct MyAssets {
     pub full_health: Handle<Image>,
     pub select_border: Handle<Image>,
+    pub audio_tank_fire: Handle<AudioSource>,
+    pub audio_rifle_fire: Handle<AudioSource>,
     pub audio_unit_select: Vec<Handle<AudioSource>>,
     pub audio_unit_move: Vec<Handle<AudioSource>>,
     pub audio_unit_attack: Vec<Handle<AudioSource>>,

@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
 use crate::{
-    Action, Barracks, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health,
-    InvokeDamage, Range, Target,
+    Action, AttackAudioEv, AttackAudioOptions, Barracks, CurrentAction, Damage, Destination, Enemy,
+    FireRate, Friendly, Health, InvokeDamage, Range, Target,
 };
 
 pub struct AiEnemyPlugin;
@@ -72,6 +72,7 @@ fn attack(
 
                         if fire_rate.0.elapsed().is_zero() {
                             // Trigger the damage event at the start of the timer
+                            cmds.trigger(AttackAudioEv(AttackAudioOptions::Tank));
                             cmds.trigger(InvokeDamage::new(dmg.0, target_ent));
                             health.current -= dmg.0;
                         }

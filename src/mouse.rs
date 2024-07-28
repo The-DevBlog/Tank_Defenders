@@ -5,7 +5,7 @@ use bevy_rts_camera::RtsCamera;
 use crate::{
     friendly::set_unit_destination,
     resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords},
-    AudioQueuesEv, Enemy, Friendly, MapBase, Selected, UnitAudio,
+    Enemy, Friendly, MapBase, Selected, UnitAudioEv, UnitAudioOptions,
 };
 
 pub struct MousePlugin;
@@ -46,7 +46,7 @@ fn set_drag_select(
     // Trigger the event only if the mouse button was just released and drag select is active
     if input.just_released(MouseButton::Left) {
         if (was_drag_select || game_cmds.drag_select) && game_cmds.selected {
-            cmds.trigger(AudioQueuesEv(UnitAudio::Select));
+            cmds.trigger(UnitAudioEv(UnitAudioOptions::Select));
         }
     }
 }
@@ -175,7 +175,7 @@ pub fn single_select(
             let tmp = selected_entity.index() == ent.index();
             selected.0 = tmp && !selected.0;
             if selected.0 {
-                cmds.trigger(AudioQueuesEv(UnitAudio::Select));
+                cmds.trigger(UnitAudioEv(UnitAudioOptions::Select));
             }
         }
     }

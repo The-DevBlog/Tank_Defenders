@@ -6,9 +6,8 @@ use bevy_rapier3d::{
 
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, AudioQueuesEv, CurrentAction, Damage, Destination, Enemy, EnemyDestroyedEv, FireRate,
-    Friendly, Health, InvokeDamage, Range, Reward, Selected, Speed, Target, Unit, UnitAudio,
-    UpdateBankBalanceEv,
+    Action, CurrentAction, Destination, Enemy, Friendly, Range, Selected, Speed, Target, Unit,
+    UnitAudioEv, UnitAudioOptions,
 };
 
 pub struct FriendlyPlugin;
@@ -18,7 +17,6 @@ impl Plugin for FriendlyPlugin {
         app.add_systems(
             Update,
             (
-                attack,
                 attack_if_in_radius,
                 command_attack,
                 set_unit_destination,
@@ -92,7 +90,7 @@ fn command_attack(
             // if enemy is clicked, command friendlies to attack
             if input.just_pressed(MouseButton::Left) {
                 // println!("ATTACK");
-                cmds.trigger(AudioQueuesEv(UnitAudio::Attack));
+                cmds.trigger(UnitAudioEv(UnitAudioOptions::Attack));
                 for (selected, mut target) in select_q.iter_mut() {
                     if selected.0 {
                         target.0 = Some(enemy_ent);
@@ -104,78 +102,6 @@ fn command_attack(
     }
 
     cursor.state = CursorState::Relocate;
-}
-
-fn attack(
-    mut cmds: Commands,
-    mut unit_q: Query<
-        (
-            &Damage,
-            &Range,
-            &Transform,
-            &mut Destination,
-            &mut Target,
-            &mut FireRate,
-            &mut CurrentAction,
-        ),
-        With<Friendly>,
-    >,
-    time: Res<Time>,
-    mut health_q: Query<&mut Health>,
-    target_transform_q: Query<&Transform>,
-    reward_q: Query<&Reward>,
-) {
-    for (dmg, range, transform, mut destination, mut target, mut fire_rate, mut action) in
-        unit_q.iter_mut()
-    {
-        // if action.0 == Action::Relocate {
-        //     return;
-        // }
-
-        if let Some(target_ent) = target.0 {
-            if let Ok(target_transform) = target_transform_q.get(target_ent) {
-                // only attack when enemy is in range
-                let distance = (transform.translation - target_transform.translation).length();
-                if distance <= range.0 {
-                    destination.0 = None;
-                    action.0 = Action::Attack;
-
-                    if let Ok(mut health) = health_q.get_mut(target_ent) {
-                        // Despawn if health < 0
-                        if health.current <= 0.0 {
-                            action.0 = Action::None;
-
-                            if let Ok(reward) = reward_q.get(target_ent) {
-                                cmds.trigger(UpdateBankBalanceEv::new(reward.0));
-                            }
-
-                            cmds.entity(target_ent).despawn_recursive();
-                            cmds.trigger(EnemyDestroyedEv);
-                            return;
-                        }
-
-                        if fire_rate.0.elapsed().is_zero() {
-                            // Trigger the damage event at the start of the timer
-                            cmds.trigger(InvokeDamage::new(dmg.0, target_ent));
-                            health.current -= dmg.0;
-                        }
-                    }
-
-                    if fire_rate.0.finished() {
-                        fire_rate.0.reset();
-                    } else {
-                        fire_rate.0.tick(time.delta());
-                    }
-                } else {
-                    destination.0 = Some(target_transform.translation);
-                }
-            } else {
-                target.0 = None;
-            }
-        } else {
-            action.0 = Action::None;
-        }
-    }
 }
 
 pub fn set_unit_destination(
@@ -226,7 +152,7 @@ pub fn set_unit_destination(
     }
 
     if game_cmds.selected {
-        cmds.trigger(AudioQueuesEv(UnitAudio::Relocate));
+        cmds.trigger(UnitAudioEv(UnitAudioOptions::Relocate));
     }
 }
 

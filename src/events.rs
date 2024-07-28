@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     resources::{Bank, MyAssets},
-    BankBalanceTxt, Health, Healthbar, HealthbarBundle,
+    BankBalanceTxt, Health, Healthbar, HealthbarBundle, Soldier, Tank,
 };
 
 pub struct EventsPlugin;
@@ -16,10 +16,19 @@ impl Plugin for EventsPlugin {
 }
 
 #[derive(Event)]
-pub struct AudioQueuesEv(pub UnitAudio);
+pub struct AttackAudioEv(pub AttackAudioOptions);
 
 #[derive(Debug)]
-pub enum UnitAudio {
+pub enum AttackAudioOptions {
+    Soldier,
+    Tank,
+}
+
+#[derive(Event)]
+pub struct UnitAudioEv(pub UnitAudioOptions);
+
+#[derive(Debug)]
+pub enum UnitAudioOptions {
     Attack,
     Relocate,
     Select,

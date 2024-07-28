@@ -4,8 +4,9 @@ use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider};
 
 use crate::{
     resources::MyAssets, Barracks, BorderSelect, BuildSoldierEv, BuySoldierBtn, Friendly, Health,
-    HealthbarBundle, PurchaseUnitRequestEv, Selected, UnitBundle, UnitType, MAP_SIZE, SOLDIER_COST,
-    SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_SPEED, SPEED_QUANTIFIER,
+    HealthbarBundle, PurchaseUnitRequestEv, Selected, Soldier, UnitBundle, UnitType, MAP_SIZE,
+    SOLDIER_COST, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_SPEED,
+    SPEED_QUANTIFIER,
 };
 
 pub struct BarracksPlugin;
@@ -18,12 +19,7 @@ impl Plugin for BarracksPlugin {
     }
 }
 
-fn spawn_barracks(
-    mut cmds: Commands,
-    assets: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    my_assets: Res<MyAssets>,
-) {
+fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<Assets<Mesh>>) {
     let barracks = (
         SceneBundle {
             scene: assets.load("barracks.glb#Scene0"),
@@ -83,12 +79,13 @@ fn build_soldier(
             SOLDIER_RANGE,
             SOLDIER_HEALTH,
             Vec3::new(2., 2., 2.),
-            assets.load("audio/rifle_fire.ogg"),
+            my_assets.audio_rifle_fire.clone(),
             Timer::from_seconds(SOLDIER_FIRE_RATE, TimerMode::Repeating),
             assets.load("soldier_animations.glb#Scene0"),
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
         Selected(false),
+        Soldier,
         Friendly,
     );
 

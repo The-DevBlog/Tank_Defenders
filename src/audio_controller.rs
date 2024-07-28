@@ -1,4 +1,7 @@
-use crate::{resources::MyAssets, Action, AudioQueuesEv, CurrentAction, Unit, UnitAudio};
+use crate::{
+    resources::MyAssets, Action, AttackAudioEv, AttackAudioOptions, CurrentAction, Unit,
+    UnitAudioEv, UnitAudioOptions,
+};
 use bevy::{audio::PlaybackMode, prelude::*};
 use rand::seq::SliceRandom;
 
@@ -7,8 +10,8 @@ pub struct AudioControllerPlugin;
 impl Plugin for AudioControllerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
-            .add_systems(Update, fire_audio)
-            .observe(unit_audio);
+            .observe(unit_audio)
+            .observe(attack_audio);
     }
 }
 
@@ -76,26 +79,32 @@ fn setup(assets: Res<AssetServer>, mut my_assets: ResMut<MyAssets>) {
     handles.push(assets.load("audio/unit_attack/2_target_acquired.ogg"));
     handles.push(assets.load("audio/unit_attack/2_weapons_hot.ogg"));
     my_assets.audio_unit_attack.extend(handles);
+
+    // attack sounds
+    my_assets.audio_rifle_fire = assets.load("audio/rifle_fire.ogg");
+    my_assets.audio_tank_fire = assets.load("audio/tank_fire.ogg")
 }
 
-fn fire_audio(unit_q: Query<(&CurrentAction, &AudioSink), With<Unit>>) {
-    for (action, sink) in unit_q.iter() {
-        match action.0 {
-            Action::Relocate => sink.pause(),
-            Action::Attack => sink.play(),
-            Action::None => sink.pause(),
-        }
-    }
+fn attack_audio(trigger: Trigger<AttackAudioEv>, mut cmds: Commands, my_assets: Res<MyAssets>) {
+    let mut bundle = AudioBundle::default();
+    bundle.settings.mode = PlaybackMode::Despawn;
+
+    bundle.source = match trigger.event().0 {
+        AttackAudioOptions::Soldier => my_assets.audio_rifle_fire.clone(),
+        AttackAudioOptions::Tank => my_assets.audio_tank_fire.clone(),
+    };
+
+    cmds.spawn(bundle);
 }
 
-fn unit_audio(trigger: Trigger<AudioQueuesEv>, mut cmds: Commands, my_assets: Res<MyAssets>) {
+fn unit_audio(trigger: Trigger<UnitAudioEv>, mut cmds: Commands, my_assets: Res<MyAssets>) {
     let mut bundle = AudioBundle::default();
     bundle.settings.mode = PlaybackMode::Despawn;
 
     let handles = match trigger.event().0 {
-        UnitAudio::Attack => my_assets.audio_unit_attack.clone(),
-        UnitAudio::Relocate => my_assets.audio_unit_move.clone(),
-        UnitAudio::Select => my_assets.audio_unit_select.clone(),
+        UnitAudioOptions::Attack => my_assets.audio_unit_attack.clone(),
+        UnitAudioOptions::Relocate => my_assets.audio_unit_move.clone(),
+        UnitAudioOptions::Select => my_assets.audio_unit_select.clone(),
     };
 
     if let Some(handle) = handles.choose(&mut rand::thread_rng()) {
