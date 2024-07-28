@@ -11,22 +11,11 @@ impl Plugin for HudPlugin {
 
 fn spawn_hud(mut cmds: Commands, bank: Res<Bank>, assets: Res<AssetServer>) {
     let hud_container = (
-        NodeBundle {
-            border_color: BorderColor {
-                0: Color::srgb(0.2, 0.19, 0.18),
-                ..default()
-            },
-            border_radius: BorderRadius::left(Val::Px(6.0)),
-            background_color: Color::srgb(0.28, 0.31, 0.26).into(),
+        ImageBundle {
+            image: assets.load("imgs/hud_container.png").into(),
             style: Style {
-                border: UiRect {
-                    top: Val::Px(17.0),
-                    left: Val::Px(17.0),
-                    ..default()
-                },
-                width: Val::Auto,
-                height: Val::Auto,
-                padding: UiRect::all(Val::Px(10.0)),
+                width: Val::Percent(12.5),
+                height: Val::Percent(30.0),
                 flex_direction: FlexDirection::Column,
                 align_self: AlignSelf::End,
                 margin: UiRect::left(Val::Auto),
@@ -44,11 +33,12 @@ fn spawn_hud(mut cmds: Commands, bank: Res<Bank>, assets: Res<AssetServer>) {
                 bank_balance,
                 TextStyle {
                     color: Color::srgb(1.0, 1.0, 0.0),
-                    font_size: 25.0,
+                    font_size: 37.0,
                     ..default()
                 },
             ),
             style: Style {
+                margin: UiRect::new(Val::Auto, Val::Auto, Val::Percent(10.0), Val::Auto),
                 align_self: AlignSelf::End,
                 ..default()
             },
@@ -59,14 +49,18 @@ fn spawn_hud(mut cmds: Commands, bank: Res<Bank>, assets: Res<AssetServer>) {
     );
 
     let buy_soldier_container = (
-        NodeBundle {
+        ButtonBundle {
+            image: UiImage::new(assets.load("imgs/hud_button.png")),
             style: Style {
-                width: Val::Auto,
-                height: Val::Px(50.0),
+                width: Val::Percent(80.0),
+                height: Val::Percent(31.0),
+                margin: UiRect::new(Val::Percent(14.0), Val::Auto, Val::Percent(10.0), Val::Auto),
+                justify_content: JustifyContent::SpaceEvenly,
                 ..default()
             },
             ..default()
         },
+        BuySoldierBtn,
         Name::new("Buy Solider Container"),
     );
 
@@ -94,28 +88,33 @@ fn spawn_hud(mut cmds: Commands, bank: Res<Bank>, assets: Res<AssetServer>) {
     );
 
     let buy_soldier_img = (
-        ButtonBundle {
+        ImageBundle {
             image: assets.load("imgs/buy_soldier.png").into(),
             style: Style {
-                height: Val::Px(50.0),
-                width: Val::Px(50.0),
+                height: Val::Percent(70.0),
+                width: Val::Percent(50.0),
+                margin: UiRect::vertical(Val::Auto),
                 ..default()
             },
             ..default()
         },
-        BuySoldierBtn,
         Name::new("Image"),
     );
 
     let buy_tank_container = (
-        NodeBundle {
+        ButtonBundle {
+            image: UiImage::new(assets.load("imgs/hud_button.png")),
             style: Style {
-                width: Val::Auto,
-                height: Val::Px(50.0),
+                width: Val::Percent(80.0),
+                height: Val::Percent(31.0),
+                margin: UiRect::new(Val::Percent(14.0), Val::Auto, Val::Percent(10.0), Val::Auto),
+                justify_content: JustifyContent::SpaceEvenly,
+
                 ..default()
             },
             ..default()
         },
+        BuyTankBtn,
         Name::new("Buy Tank Container"),
     );
 
@@ -143,16 +142,16 @@ fn spawn_hud(mut cmds: Commands, bank: Res<Bank>, assets: Res<AssetServer>) {
     );
 
     let buy_tank_img = (
-        ButtonBundle {
+        ImageBundle {
             image: assets.load("imgs/buy_tank.png").into(),
             style: Style {
-                height: Val::Px(50.0),
-                width: Val::Px(50.0),
+                height: Val::Percent(70.0),
+                width: Val::Percent(50.0),
+                margin: UiRect::vertical(Val::Auto),
                 ..default()
             },
             ..default()
         },
-        BuyTankBtn,
         Name::new("Image"),
     );
 
