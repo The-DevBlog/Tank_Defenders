@@ -16,10 +16,10 @@ impl Plugin for EventsPlugin {
 }
 
 #[derive(Event)]
-pub struct AudioQueuesEv(pub AudioQueues);
+pub struct AudioQueuesEv(pub UnitAudio);
 
 #[derive(Debug)]
-pub enum AudioQueues {
+pub enum UnitAudio {
     Attack,
     Relocate,
     Select,

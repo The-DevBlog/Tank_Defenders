@@ -1,8 +1,5 @@
-use crate::{resources::MyAssets, Action, AudioQueues, AudioQueuesEv, CurrentAction, Unit};
-use bevy::{
-    audio::{PlaybackMode, Source},
-    prelude::*,
-};
+use crate::{resources::MyAssets, Action, AudioQueuesEv, CurrentAction, Unit, UnitAudio};
+use bevy::{audio::PlaybackMode, prelude::*};
 use rand::seq::SliceRandom;
 
 pub struct AudioControllerPlugin;
@@ -10,8 +7,8 @@ pub struct AudioControllerPlugin;
 impl Plugin for AudioControllerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, setup)
-            .add_systems(Update, controller)
-            .observe(queues);
+            .add_systems(Update, fire_audio)
+            .observe(unit_audio);
     }
 }
 
@@ -83,7 +80,7 @@ fn setup(assets: Res<AssetServer>, mut my_assets: ResMut<MyAssets>) {
     my_assets.audio_unit_attack.extend(handles);
 }
 
-fn controller(unit_q: Query<(&CurrentAction, &AudioSink), With<Unit>>) {
+fn fire_audio(unit_q: Query<(&CurrentAction, &AudioSink), With<Unit>>) {
     for (action, sink) in unit_q.iter() {
         match action.0 {
             Action::Relocate => sink.pause(),
@@ -93,14 +90,14 @@ fn controller(unit_q: Query<(&CurrentAction, &AudioSink), With<Unit>>) {
     }
 }
 
-fn queues(trigger: Trigger<AudioQueuesEv>, mut cmds: Commands, my_assets: Res<MyAssets>) {
+fn unit_audio(trigger: Trigger<AudioQueuesEv>, mut cmds: Commands, my_assets: Res<MyAssets>) {
     let mut bundle = AudioBundle::default();
     bundle.settings.mode = PlaybackMode::Despawn;
 
     let handles = match trigger.event().0 {
-        AudioQueues::Attack => my_assets.audio_unit_attack.clone(),
-        AudioQueues::Relocate => my_assets.audio_unit_move.clone(),
-        AudioQueues::Select => my_assets.audio_unit_select.clone(),
+        UnitAudio::Attack => my_assets.audio_unit_attack.clone(),
+        UnitAudio::Relocate => my_assets.audio_unit_move.clone(),
+        UnitAudio::Select => my_assets.audio_unit_select.clone(),
     };
 
     if let Some(handle) = handles.choose(&mut rand::thread_rng()) {

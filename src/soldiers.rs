@@ -3,7 +3,7 @@ use bevy_rapier3d::prelude::*;
 
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, AudioQueues, AudioQueuesEv, CurrentAction, Damage, Destination, Enemy,
+    Action, UnitAudio, AudioQueuesEv, CurrentAction, Damage, Destination, Enemy,
     EnemyDestroyedEv, FireRate, Friendly, Health, InvokeDamage, Range, Reward, Selected, Speed,
     Target, Unit, UpdateBankBalanceEv,
 };
@@ -67,7 +67,7 @@ pub fn set_unit_destination(
     }
 
     if game_cmds.selected {
-        cmds.trigger(AudioQueuesEv(AudioQueues::Relocate));
+        cmds.trigger(AudioQueuesEv(UnitAudio::Relocate));
     }
 }
 
@@ -147,7 +147,7 @@ fn command_attack(
             // if enemy is clicked, command friendlies to attack
             if input.just_pressed(MouseButton::Left) {
                 // println!("ATTACK");
-                cmds.trigger(AudioQueuesEv(AudioQueues::Attack));
+                cmds.trigger(AudioQueuesEv(UnitAudio::Attack));
                 for (selected, mut target) in select_q.iter_mut() {
                     if selected.0 {
                         target.0 = Some(enemy_ent);
