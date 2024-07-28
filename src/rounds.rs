@@ -76,7 +76,7 @@ fn spawn_tanks(
                 Vec3::new(4., 2., 6.),
                 assets.load("audio/tank_fire.ogg"),
                 Timer::from_seconds(TANK_FIRE_RATE, TimerMode::Repeating),
-                assets.load("tank.glb#Scene0"),
+                assets.load("tank_enemy.glb#Scene0"),
                 initial_position,
             ),
             Enemy,

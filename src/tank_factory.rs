@@ -85,7 +85,7 @@ fn build_tank(
             Vec3::new(4., 2., 6.),
             assets.load("audio/tank_fire.ogg"),
             Timer::from_seconds(TANK_FIRE_RATE, TimerMode::Repeating),
-            assets.load("tank.glb#Scene0"),
+            assets.load("tank_friendly.glb#Scene0"),
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
         Selected(false),
