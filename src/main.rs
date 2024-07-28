@@ -94,7 +94,7 @@ fn main() {
             TanksPlugin,
             SoldiersPlugin,
             MousePlugin,
-            RapierDebugRenderPlugin::default(),
+            // RapierDebugRenderPlugin::default(),
             RapierPhysicsPlugin::<NoUserData>::default(),
             WorldInspectorPlugin::new(),
         ))
