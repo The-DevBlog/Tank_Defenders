@@ -18,6 +18,9 @@ pub struct Enemy;
 pub struct Damage(pub f32);
 
 #[derive(Component)]
+pub struct FriendlySelectBorder;
+
+#[derive(Component)]
 pub struct Target(pub Option<Entity>);
 
 #[derive(Component)]

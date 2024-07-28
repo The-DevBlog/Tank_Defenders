@@ -68,7 +68,7 @@ fn spawn_tanks(
         let mut tank = (
             UnitBundle::new(
                 TANK_REWARD,
-                "Tank".to_string(),
+                "Tank Enemy".to_string(),
                 TANK_SPEED * SPEED_QUANTIFIER,
                 TANK_DMG,
                 TANK_RANGE,

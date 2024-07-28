@@ -1,11 +1,15 @@
 use bevy::{prelude::*, window::PrimaryWindow};
+use bevy_mod_billboard::{
+    Billboard, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
+};
 use bevy_rapier3d::{pipeline::QueryFilter, plugin::RapierContext, render::ColliderDebugColor};
 use bevy_rts_camera::RtsCamera;
 
 use crate::{
-    resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords},
+    resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords, MyAssets},
     soldiers::set_unit_destination,
-    AudioQueues, AudioQueuesEv, Enemy, Friendly, MapBase, Selected,
+    AudioQueues, AudioQueuesEv, Enemy, Friendly, FriendlySelectBorder, Healthbar, MapBase,
+    Selected,
 };
 
 pub struct MousePlugin;
@@ -102,9 +106,13 @@ fn set_mouse_coords(
 
 pub fn drag_select(
     mut gizmos: Gizmos,
-    mut friendly_q: Query<(&Transform, &mut Selected, &mut ColliderDebugColor), With<Friendly>>,
+    mut friendly_q: Query<(Entity, &Transform, &mut Selected), With<Friendly>>,
+    mut border_select_q: Query<&mut BillboardMeshHandle, With<FriendlySelectBorder>>,
     box_coords: Res<BoxCoords>,
     game_cmds: Res<GameCommands>,
+    my_assets: Res<MyAssets>,
+    children_q: Query<&Children>,
+    mut meshes: ResMut<Assets<Mesh>>,
 ) {
     if !game_cmds.drag_select {
         return;
@@ -125,20 +133,45 @@ pub fn drag_select(
     let min_z = start.z.min(end.z);
     let max_z = start.z.max(end.z);
 
-    for (unit_trans, mut selected, mut collider_color) in friendly_q.iter_mut() {
+    for (friendly_ent, friendly_trans, mut selected) in friendly_q.iter_mut() {
         // check to see if units are within selection rectangle
-        let unit_pos = unit_trans.translation;
+        let unit_pos = friendly_trans.translation;
         let in_box_bounds = unit_pos.x >= min_x
             && unit_pos.x <= max_x
             && unit_pos.z >= min_z
             && unit_pos.z <= max_z;
 
-        selected.0 = in_box_bounds;
-        if selected.0 {
-            collider_color.0.alpha = 1.0;
-        } else {
-            collider_color.0.alpha = 0.0;
+        if let Ok(ent) = children_q.get(friendly_ent) {
+            // if let Ok(mut border_select) = border_select_q.get_mut(friendly_ent) {
+            println!("hello");
+            selected.0 = in_box_bounds;
+            if selected.0 {
+                // let select_border = (
+                //     BillboardTextureBundle {
+                //         texture: BillboardTextureHandle(my_assets.select_border.clone()),
+                //         mesh: BillboardMeshHandle(
+                //             meshes.add(Rectangle::from_size(Vec2::new(7.5, 7.5))),
+                //         ),
+                //         ..default()
+                //     },
+                //     FriendlySelectBorder,
+                //     Name::new("Border Select"),
+                // );
+
+                // *border_select =
+                //     BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(7.5, 7.5))));
+
+                // collider_color.0.alpha = 1.0;
+                // *border_select = Visibility::Visible;
+            } else {
+                // *border_select = Visibility::Hidden;
+                // *border_select =
+                //     BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(7.5, 7.5))));
+
+                // collider_color.0.alpha = 0.0;
+            }
         }
+        // }
     }
 }
 

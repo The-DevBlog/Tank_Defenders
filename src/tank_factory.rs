@@ -1,13 +1,16 @@
 use bevy::{audio::Volume, prelude::*};
+use bevy_mod_billboard::{
+    Billboard, BillboardDepth, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
+};
 use bevy_rapier3d::{
     prelude::{Collider, RigidBody},
     render::ColliderDebugColor,
 };
 
 use crate::{
-    BuildTankEv, BuyTankBtn, Friendly, Health, HealthbarBundle, PurchaseUnitRequestEv, Selected,
-    TankFactory, UnitBundle, UnitType, MAP_SIZE, SPEED_QUANTIFIER, TANK_COST, TANK_DMG,
-    TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
+    resources::MyAssets, BuildTankEv, BuyTankBtn, Friendly, FriendlySelectBorder, Health,
+    HealthbarBundle, PurchaseUnitRequestEv, Selected, TankFactory, UnitBundle, UnitType, MAP_SIZE,
+    SPEED_QUANTIFIER, TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
 };
 
 pub struct TankFactoryPlugin;
@@ -66,6 +69,7 @@ fn build_tank(
     _trigger: Trigger<BuildTankEv>,
     tank_factory_q: Query<&Transform, With<TankFactory>>,
     assets: Res<AssetServer>,
+    my_assets: Res<MyAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut cmds: Commands,
 ) {
@@ -77,7 +81,7 @@ fn build_tank(
     let mut tank = (
         UnitBundle::new(
             0,
-            "Tank".to_string(),
+            "Tank Friendly".to_string(),
             TANK_SPEED * SPEED_QUANTIFIER,
             TANK_DMG,
             TANK_RANGE,
@@ -89,7 +93,7 @@ fn build_tank(
             Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
         ),
         Selected(false),
-        ColliderDebugColor(Hsla::new(120.0, 0.22, 0.3, 0.0)),
+        // ColliderDebugColor(Hsla::new(120.0, 0.22, 0.3, 0.0)),
         Friendly,
     );
 
@@ -111,8 +115,19 @@ fn build_tank(
         healthbar_mesh.clone(),
     );
 
+    let select_border = (
+        BillboardTextureBundle {
+            texture: BillboardTextureHandle(my_assets.select_border.clone()),
+            mesh: BillboardMeshHandle(meshes.add(Rectangle::from_size(Vec2::new(15.0, 15.0)))),
+            ..default()
+        },
+        FriendlySelectBorder,
+        Name::new("Border Select"),
+    );
+
     cmds.spawn(tank).with_children(|parent| {
         parent.spawn(healthbar);
+        parent.spawn(select_border);
     });
 
     println!("Building Tank");
