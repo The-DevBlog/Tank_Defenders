@@ -54,6 +54,7 @@ pub fn set_unit_destination(
         }
 
         if cursor.state == CursorState::Relocate {
+            println!("RELOCATING");
             target.0 = None;
         }
 

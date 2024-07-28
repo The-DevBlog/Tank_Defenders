@@ -28,9 +28,7 @@ fn setup(assets: Res<AssetServer>, mut my_assets: ResMut<MyAssets>) {
     handles.push(assets.load("audio/unit_select/2_in_position.ogg"));
     handles.push(assets.load("audio/unit_select/2_on_your_mark.ogg"));
     handles.push(assets.load("audio/unit_select/2_orders.ogg"));
-    handles.push(assets.load("audio/unit_select/2_reporting.ogg"));
     handles.push(assets.load("audio/unit_select/2_standing_by.ogg"));
-    handles.push(assets.load("audio/unit_select/2_yes_sir.ogg"));
     my_assets.audio_unit_select.extend(handles);
 
     // unit move variations
