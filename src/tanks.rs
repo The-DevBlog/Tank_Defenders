@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 
 use crate::{
-    Action, Barracks, CurrentAction, Damage, Destination, Enemy, FireRate, Friendly, Health,
-    InvokeDamage, Range, Target,
+    Action, CurrentAction, Damage, Destination, Enemy, FireRate, Health, InvokeDamage, Range,
+    Target,
 };
 
 pub struct TanksPlugin;
 
 impl Plugin for TanksPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (attack, attack_if_in_radius));
+        app.add_systems(Update, attack);
     }
 }
 
@@ -34,6 +34,10 @@ fn attack(
     for (dmg, range, transform, mut destination, mut target, mut fire_rate, mut action) in
         unit_q.iter_mut()
     {
+        if !destination.0.is_none() {
+            return;
+        }
+
         if let Some(target_ent) = target.0 {
             if let Ok(target_transform) = target_transform_q.get(target_ent) {
                 // only attack when enemy is in range
@@ -75,21 +79,21 @@ fn attack(
     }
 }
 
-fn attack_if_in_radius(
-    mut enemy_q: Query<(&Range, &Transform, &mut Target), With<Enemy>>,
-    friendly_q: Query<(Entity, &Transform), With<Friendly>>,
-    barracks_q: Query<Entity, With<Barracks>>,
-) {
-    for (range, enemy_transform, mut target) in enemy_q.iter_mut() {
-        if let Ok(barracks_ent) = barracks_q.get_single() {
-            target.0 = Some(barracks_ent);
-        }
+// fn attack_if_in_radius(
+//     mut enemy_q: Query<(&Range, &Transform, &mut Target), With<Enemy>>,
+//     friendly_q: Query<(Entity, &Transform), With<Friendly>>,
+//     barracks_q: Query<Entity, With<Barracks>>,
+// ) {
+//     for (range, enemy_transform, mut target) in enemy_q.iter_mut() {
+//         if let Ok(barracks_ent) = barracks_q.get_single() {
+//             target.0 = Some(barracks_ent);
+//         }
 
-        for (friendly_ent, friendly_transform) in friendly_q.iter() {
-            let distance = (enemy_transform.translation - friendly_transform.translation).length();
-            if distance <= range.0 {
-                target.0 = Some(friendly_ent);
-            }
-        }
-    }
-}
+//         for (friendly_ent, friendly_transform) in friendly_q.iter() {
+//             let distance = (enemy_transform.translation - friendly_transform.translation).length();
+//             if distance <= range.0 {
+//                 target.0 = Some(friendly_ent);
+//             }
+//         }
+//     }
+// }
