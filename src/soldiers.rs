@@ -32,12 +32,32 @@ pub fn set_unit_destination(
     game_cmds: Res<GameCommands>,
     cursor: Res<CustomCursor>,
     mut cmds: Commands,
+    cam_q: Query<(&Camera, &GlobalTransform)>,
+    rapier_context: Res<RapierContext>,
 ) {
     if !input.just_released(MouseButton::Left) || game_cmds.drag_select {
         return;
     }
 
-    for (mut unit_destination, mut target, trans, selected) in friendly_q.iter_mut() {
+    let (cam, cam_trans) = cam_q.single();
+
+    let Some(ray) = cam.viewport_to_world(cam_trans, mouse_coords.local) else {
+        return;
+    };
+
+    let hit = rapier_context.cast_ray(
+        ray.origin,
+        ray.direction.into(),
+        f32::MAX,
+        true,
+        QueryFilter::only_dynamic(),
+    );
+
+    if let Some(_) = hit {
+        return;
+    }
+
+    for (mut friendly_destination, mut target, trans, selected) in friendly_q.iter_mut() {
         if !selected.0 {
             continue;
         }
@@ -48,7 +68,7 @@ pub fn set_unit_destination(
 
         let mut destination = mouse_coords.global;
         destination.y += trans.scale.y / 2.0; // calculate for entity height
-        unit_destination.0 = Some(destination);
+        friendly_destination.0 = Some(destination);
         println!("Unit Moving to ({}, {})", destination.x, destination.y);
     }
 
