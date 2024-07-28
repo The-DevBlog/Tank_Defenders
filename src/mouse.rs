@@ -5,7 +5,7 @@ use bevy_rts_camera::RtsCamera;
 use crate::{
     resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords},
     soldiers::set_unit_destination,
-    Enemy, Friendly, MapBase, Selected,
+    AudioQueues, AudioQueuesEv, Enemy, Friendly, MapBase, Selected,
 };
 
 pub struct MousePlugin;
@@ -30,12 +30,25 @@ impl Plugin for MousePlugin {
     }
 }
 
-fn set_drag_select(box_coords: Res<BoxCoords>, mut game_cmds: ResMut<GameCommands>) {
+fn set_drag_select(
+    box_coords: Res<BoxCoords>,
+    mut game_cmds: ResMut<GameCommands>,
+    mut cmds: Commands,
+    input: Res<ButtonInput<MouseButton>>,
+) {
     let drag_threshold = 2.5;
     let width_z = (box_coords.global_start.z - box_coords.global_end.z).abs();
     let width_x = (box_coords.global_start.x - box_coords.global_end.x).abs();
 
+    let was_drag_select = game_cmds.drag_select;
     game_cmds.drag_select = width_z > drag_threshold || width_x > drag_threshold;
+
+    // Trigger the event only if the mouse button was just released and drag select is active
+    if input.just_released(MouseButton::Left) {
+        if (was_drag_select || game_cmds.drag_select) && game_cmds.selected {
+            cmds.trigger(AudioQueuesEv(AudioQueues::Select));
+        }
+    }
 }
 
 fn set_box_coords(
@@ -137,6 +150,7 @@ pub fn single_select(
     mouse_coords: Res<MouseCoords>,
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
+    mut cmds: Commands,
 ) {
     if !input.just_released(MouseButton::Left) || game_cmds.drag_select {
         return;
@@ -165,11 +179,10 @@ pub fn single_select(
         for (selected_entity, mut selected, mut collider_color) in select_q.iter_mut() {
             let tmp = selected_entity.index() == ent.index();
             if tmp && !selected.0 {
-                println!("SELECT");
+                cmds.trigger(AudioQueuesEv(AudioQueues::Select));
                 selected.0 = true;
                 collider_color.0.alpha = 1.0;
             } else {
-                println!("DE-SELECT");
                 selected.0 = false;
                 collider_color.0.alpha = 0.0;
             }

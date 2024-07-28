@@ -3,8 +3,9 @@ use bevy_rapier3d::prelude::*;
 
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, CurrentAction, Damage, Destination, Enemy, EnemyDestroyedEv, FireRate, Friendly,
-    Health, InvokeDamage, Range, Reward, Selected, Speed, Target, Unit, UpdateBankBalanceEv,
+    Action, AudioQueues, AudioQueuesEv, CurrentAction, Damage, Destination, Enemy,
+    EnemyDestroyedEv, FireRate, Friendly, Health, InvokeDamage, Range, Reward, Selected, Speed,
+    Target, Unit, UpdateBankBalanceEv,
 };
 
 pub struct SoldiersPlugin;
@@ -30,6 +31,7 @@ pub fn set_unit_destination(
     input: Res<ButtonInput<MouseButton>>,
     game_cmds: Res<GameCommands>,
     cursor: Res<CustomCursor>,
+    mut cmds: Commands,
 ) {
     if !input.just_released(MouseButton::Left) || game_cmds.drag_select {
         return;
@@ -49,6 +51,8 @@ pub fn set_unit_destination(
         unit_destination.0 = Some(destination);
         println!("Unit Moving to ({}, {})", destination.x, destination.y);
     }
+
+    cmds.trigger(AudioQueuesEv(AudioQueues::Relocate));
 }
 
 fn move_unit(
@@ -99,6 +103,7 @@ fn command_attack(
     input: Res<ButtonInput<MouseButton>>,
     mut cursor: ResMut<CustomCursor>,
     game_cmds: Res<GameCommands>,
+    mut cmds: Commands,
 ) {
     if !game_cmds.selected {
         cursor.state = CursorState::Normal;
@@ -125,6 +130,8 @@ fn command_attack(
 
             // if enemy is clicked, command friendlies to attack
             if input.just_pressed(MouseButton::Left) {
+                // println!("ATTACK");
+                cmds.trigger(AudioQueuesEv(AudioQueues::Attack));
                 for (selected, mut target) in select_q.iter_mut() {
                     if selected.0 {
                         target.0 = Some(enemy_ent);
@@ -177,7 +184,6 @@ fn attack(
                                 cmds.trigger(UpdateBankBalanceEv::new(reward.0));
                             }
 
-                            println!("DESPAWN");
                             cmds.entity(target_ent).despawn_recursive();
                             cmds.trigger(EnemyDestroyedEv);
                             return;
