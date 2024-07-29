@@ -98,6 +98,9 @@ pub struct ReadyUpTxt;
 #[derive(Component)]
 pub struct FireRate(pub Timer);
 
+#[derive(Component)]
+pub struct RoundTxt;
+
 #[derive(Component, Debug)]
 pub struct CurrentAction(pub Action);
 

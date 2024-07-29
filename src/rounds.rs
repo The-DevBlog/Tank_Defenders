@@ -3,9 +3,9 @@ use bevy::prelude::*;
 use crate::{
     resources::{MyAssets, RoundInfo},
     AdvanceRound, Barracks, Enemy, EnemyDestroyedEv, EnemySoldier, EnemyTank, HealthbarBundle,
-    ReadyUpBtn, ReadyUpTxt, StartRound, UnitBundle, MAP_SIZE, SOLDIER_DMG, SOLDIER_FIRE_RATE,
-    SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_REWARD, SOLDIER_SPEED, SPEED_QUANTIFIER, TANK_DMG,
-    TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_REWARD, TANK_SPEED,
+    ReadyUpBtn, ReadyUpTxt, RoundTxt, StartRound, UnitBundle, MAP_SIZE, SOLDIER_DMG,
+    SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_REWARD, SOLDIER_SPEED,
+    SPEED_QUANTIFIER, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_REWARD, TANK_SPEED,
 };
 
 pub struct RoundsPlugin;
@@ -22,12 +22,37 @@ impl Plugin for RoundsPlugin {
 }
 
 fn setup(mut cmds: Commands) {
+    let round_txt = (
+        TextBundle {
+            text: Text::from_section(
+                "ROUND 1",
+                TextStyle {
+                    color: Color::srgb(0.0, 0.0, 0.0),
+                    font_size: 50.0,
+                    ..default()
+                },
+            ),
+            style: Style {
+                top: Val::Percent(0.5),
+                right: Val::Percent(0.5),
+                position_type: PositionType::Absolute,
+                margin: UiRect::all(Val::Percent(0.5)),
+                ..default()
+            },
+            ..default()
+        },
+        RoundTxt,
+        Name::new("Round Txt"),
+    );
+
+    cmds.spawn(round_txt);
     cmds.trigger(AdvanceRound);
 }
 
 fn advance_round(
     _trigger: Trigger<EnemyDestroyedEv>,
     mut round_info: ResMut<RoundInfo>,
+    mut round_txt_q: Query<&mut Text, With<RoundTxt>>,
     mut cmds: Commands,
 ) {
     println!("Enemy Destroyed");
@@ -35,24 +60,24 @@ fn advance_round(
 
     let total_enemies = round_info.enemy_soldiers + round_info.enemy_tanks;
     if round_info.enemies_defeated >= total_enemies {
+        // update round display
+        if let Ok(mut round_txt) = round_txt_q.get_single_mut() {
+            round_txt.sections[0].value = format!("ROUND {}", round_info.round);
+        }
+
         println!("New Round!");
         cmds.trigger(AdvanceRound);
     }
 }
 
-fn reset_round(
-    _trigger: Trigger<AdvanceRound>,
-    round_info: ResMut<RoundInfo>,
-    my_assets: Res<MyAssets>,
-    mut cmds: Commands,
-) {
+fn reset_round(_trigger: Trigger<AdvanceRound>, my_assets: Res<MyAssets>, mut cmds: Commands) {
     let ready_up_container = (
         ButtonBundle {
             image: UiImage::new(my_assets.img_hud_btn.clone()),
             style: Style {
-                width: Val::Percent(80.0),
-                height: Val::Percent(31.0),
-                margin: UiRect::new(Val::Percent(14.0), Val::Auto, Val::Percent(10.0), Val::Auto),
+                width: Val::Percent(30.0),
+                height: Val::Percent(15.0),
+                margin: UiRect::new(Val::Auto, Val::Auto, Val::Percent(1.5), Val::Auto),
                 justify_content: JustifyContent::SpaceEvenly,
                 ..default()
             },
@@ -65,10 +90,10 @@ fn reset_round(
     let ready_up_txt = (
         TextBundle {
             text: Text::from_section(
-                round_info.count_down.remaining_secs().to_string(),
+                "READY UP",
                 TextStyle {
-                    color: Color::srgb(1.0, 1.0, 0.0),
-                    font_size: 25.0,
+                    color: Color::srgb(0.0, 0.0, 0.0),
+                    font_size: 50.0,
                     ..default()
                 },
             ),
@@ -249,7 +274,8 @@ fn count_down_to_next_round(
 ) {
     if round_info.ready_up {
         if let Ok(mut count_down_txt) = count_down_txt_q.get_single_mut() {
-            count_down_txt.sections[0].value = round_info.count_down.remaining_secs().to_string();
+            count_down_txt.sections[0].value =
+                round_info.count_down.remaining_secs().ceil().to_string();
 
             if round_info.count_down.finished() {
                 round_info.new_round();
