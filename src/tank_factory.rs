@@ -5,8 +5,8 @@ use bevy_rapier3d::prelude::{Collider, RigidBody};
 use crate::{
     resources::MyAssets, BorderSelect, BuildTankEv, BuyTankBtn, Friendly, Health, HealthbarBundle,
     PurchaseUnitRequestEv, RestartGameEv, Selected, Tank, TankFactory, UnitBundle, UnitType,
-    MAP_SIZE, SPEED_QUANTIFIER, TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE,
-    TANK_SPEED,
+    MAP_SIZE, SPEED_QUANTIFIER, TANK_COST, TANK_DMG, TANK_FACTORY_HEALTH, TANK_FIRE_RATE,
+    TANK_HEALTH, TANK_RANGE, TANK_SPEED,
 };
 
 pub struct TankFactoryPlugin;
@@ -38,7 +38,7 @@ fn spawn_tank_factory(
         Collider::cuboid(14.0, 20.0, 24.0),
         RigidBody::Fixed,
         TankFactory,
-        Health::new(2000.0),
+        Health::new(TANK_FACTORY_HEALTH),
         Name::new("Tank Factory"),
     );
 

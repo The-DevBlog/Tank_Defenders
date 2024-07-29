@@ -5,8 +5,8 @@ use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider};
 use crate::{
     resources::MyAssets, Barracks, BorderSelect, BuildSoldierEv, BuySoldierBtn, Friendly, Health,
     HealthbarBundle, PurchaseUnitRequestEv, RestartGameEv, Selected, Soldier, UnitBundle, UnitType,
-    MAP_SIZE, SOLDIER_COST, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE,
-    SOLDIER_SPEED, SPEED_QUANTIFIER,
+    BARRACKS_HEALTH, MAP_SIZE, SOLDIER_COST, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH,
+    SOLDIER_RANGE, SOLDIER_SPEED, SPEED_QUANTIFIER,
 };
 
 pub struct BarracksPlugin;
@@ -38,7 +38,7 @@ fn spawn_barracks(
         Collider::cuboid(16.0, 13.0, 16.0),
         RigidBody::Fixed,
         Barracks,
-        Health::new(2000.0),
+        Health::new(BARRACKS_HEALTH),
         Name::new("Barracks"),
     );
 
