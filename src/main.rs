@@ -63,18 +63,19 @@ const TANK_REWARD: i32 = 100;
 
 // const MAP_SIZE: f32 = 800.0;
 // const SPEED_QUANTIFIER: f32 = 1000.0;
-// const SOLDIER_FIRE_RATE: f32 = 0.25;
-// const SOLDIER_COST: i32 = 75;
-// const SOLDIER_DMG: f32 = 20.0;
-// const SOLDIER_HEALTH: f32 = 100.0;
+// const SOLDIER_DMG: f32 = 10.0;
+// const SOLDIER_HEALTH: f32 = 250.0;
 // const SOLDIER_RANGE: f32 = 50.0;
 // const SOLDIER_SPEED: f32 = 5.0;
+// const SOLDIER_FIRE_RATE: f32 = 1.5;
+// const SOLDIER_COST: i32 = 75;
+// const SOLDIER_REWARD: i32 = 25;
+// const TANK_DMG: f32 = 300.0;
+// const TANK_SPEED: f32 = 50.0;
 // const TANK_FIRE_RATE: f32 = 1.5;
 // const TANK_COST: i32 = 250;
-// const TANK_DMG: f32 = 1.0;
-// const TANK_SPEED: f32 = 22.5;
 // const TANK_RANGE: f32 = 125.0;
-// const TANK_HEALTH: f32 = 100.0;
+// const TANK_HEALTH: f32 = 1000.0;
 // const TANK_REWARD: i32 = 100;
 
 fn main() {

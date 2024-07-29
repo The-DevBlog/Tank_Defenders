@@ -51,7 +51,7 @@ pub struct RoundInfo {
 impl Default for RoundInfo {
     fn default() -> Self {
         RoundInfo {
-            round: 0,
+            round: 1,
             enemy_tanks: 0,
             enemy_soldiers: 0,
             enemies_defeated: 0,
@@ -63,7 +63,7 @@ impl Default for RoundInfo {
 
 impl RoundInfo {
     pub fn new_round(&mut self) {
-        self.round += 0;
+        self.round += 1;
         self.enemies_defeated = 0;
         self.ready_up = false;
         self.enemy_tanks += 2;
