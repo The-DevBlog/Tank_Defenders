@@ -6,7 +6,7 @@ use bevy_rapier3d::{
 
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, CurrentAction, Destination, Enemy, Friendly, Range, Selected, Speed, Target, Unit,
+    Action, CurrentAction, Destination, Enemy, Friendly, Range, Selected, Speed, Target,
     UnitAudioEv, UnitAudioOptions,
 };
 
@@ -20,7 +20,8 @@ impl Plugin for FriendlyPlugin {
                 attack_if_in_radius,
                 command_attack,
                 set_unit_destination,
-                move_unit,
+                move_unit::<Friendly>,
+                move_unit::<Enemy>,
             ),
         );
     }
@@ -156,7 +157,7 @@ pub fn set_unit_destination(
     }
 }
 
-fn move_unit(
+fn move_unit<T: Component>(
     mut unit_q: Query<
         (
             &mut CurrentAction,
@@ -164,33 +165,40 @@ fn move_unit(
             &mut ExternalImpulse,
             &Speed,
             &mut Destination,
+            &Target,
         ),
-        With<Unit>,
+        With<T>,
     >,
+    target_transform_q: Query<&Transform, Without<T>>,
     time: Res<Time>,
 ) {
-    for (mut action, mut trans, mut ext_impulse, speed, mut destination) in unit_q.iter_mut() {
+    for (mut action, mut trans, mut ext_impulse, speed, mut destination, target) in
+        unit_q.iter_mut()
+    {
+        if let Some(target) = target.0 {
+            if let Ok(target_transform) = target_transform_q.get(target) {
+                let direction = (target_transform.translation - trans.translation).normalize();
+                rotate_towards(&mut trans, direction);
+            }
+        }
+
         if let Some(new_pos) = destination.0 {
-            // Update the unit's rotation to face the direction
             let distance = new_pos - trans.translation;
-
-            // Calculate the direction vector on the XZ plane
             let direction = Vec3::new(distance.x, 0.0, distance.z).normalize();
-
-            // Calculate the target Y rotation (yaw)
-            let target_yaw = direction.x.atan2(direction.z); // Corrected yaw calculation
-            let target_rotation = Quat::from_rotation_y(target_yaw); // Remove adjustment for facin
-            trans.rotation = target_rotation;
+            rotate_towards(&mut trans, direction);
 
             if distance.length_squared() <= 5.0 {
                 destination.0 = None;
                 action.0 = Action::None;
-                // println!("Unit Stopping");
             } else {
                 action.0 = Action::Relocate;
-                // Set the impulse to move the unit
                 ext_impulse.impulse += direction * speed.0 * time.delta_seconds();
             }
         }
     }
+}
+
+fn rotate_towards(trans: &mut Transform, direction: Vec3) {
+    let target_yaw = direction.x.atan2(direction.z);
+    trans.rotation = Quat::from_rotation_y(target_yaw);
 }

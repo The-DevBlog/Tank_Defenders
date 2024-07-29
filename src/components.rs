@@ -178,7 +178,10 @@ impl UnitBundle {
                 original: health,
             },
             current_action: CurrentAction(Action::None),
-            locked_axis: (LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z),
+            locked_axis: (LockedAxes::ROTATION_LOCKED_X
+                | LockedAxes::ROTATION_LOCKED_Z
+                | LockedAxes::ROTATION_LOCKED_Y
+                | LockedAxes::TRANSLATION_LOCKED_Y),
             scene_bundle: SceneBundle {
                 scene: scene,
                 transform: Transform {
