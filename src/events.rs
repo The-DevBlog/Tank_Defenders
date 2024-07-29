@@ -46,6 +46,9 @@ impl UpdateBankBalanceEv {
 }
 
 #[derive(Event)]
+pub struct StartRound;
+
+#[derive(Event)]
 pub struct EnemyDestroyedEv;
 
 #[derive(Event)]
@@ -134,7 +137,7 @@ fn update_healthbar(
             let width = healthbar.width / (health.original / health.current);
             let healthbar_mesh =
                 meshes.add(Rectangle::from_size(Vec2::new(width, healthbar.height)));
-            let healthbar_img = my_assets.full_health.clone();
+            let healthbar_img = my_assets.img_full_health.clone();
             let new_healthbar = HealthbarBundle::new(
                 healthbar.width,
                 healthbar.height,

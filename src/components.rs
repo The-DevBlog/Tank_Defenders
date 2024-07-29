@@ -15,6 +15,12 @@ pub struct Speed(pub f32);
 pub struct Enemy;
 
 #[derive(Component)]
+pub struct EnemySoldier;
+
+#[derive(Component)]
+pub struct EnemyTank;
+
+#[derive(Component)]
 pub struct Damage(pub f32);
 
 #[derive(Component)]
@@ -82,6 +88,12 @@ pub struct TankFactory;
 
 #[derive(Component)]
 pub struct Barracks;
+
+#[derive(Component)]
+pub struct ReadyUpBtn;
+
+#[derive(Component)]
+pub struct ReadyUpTxt;
 
 #[derive(Component)]
 pub struct FireRate(pub Timer);

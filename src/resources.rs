@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 
 pub struct ResourcesPlugin;
@@ -17,8 +19,9 @@ impl Plugin for ResourcesPlugin {
 
 #[derive(Resource, Default)]
 pub struct MyAssets {
-    pub full_health: Handle<Image>,
-    pub select_border: Handle<Image>,
+    pub img_full_health: Handle<Image>,
+    pub img_select_border: Handle<Image>,
+    pub img_hud_btn: Handle<Image>,
     pub audio_tank_fire: Handle<AudioSource>,
     pub audio_rifle_fire: Handle<AudioSource>,
     pub audio_unit_select: Vec<Handle<AudioSource>>,
@@ -41,23 +44,31 @@ pub struct RoundInfo {
     pub enemy_tanks: i32,
     pub enemy_soldiers: i32,
     pub enemies_defeated: i32,
+    pub ready_up: bool,
+    pub count_down: Timer,
 }
 
 impl Default for RoundInfo {
     fn default() -> Self {
         RoundInfo {
-            round: 1,
-            enemy_tanks: 2,
+            round: 0,
+            enemy_tanks: 0,
             enemy_soldiers: 0,
             enemies_defeated: 0,
+            ready_up: false,
+            count_down: Timer::from_seconds(5.0, TimerMode::Once),
         }
     }
 }
 
 impl RoundInfo {
     pub fn new_round(&mut self) {
-        self.round += 1;
+        self.round += 0;
         self.enemies_defeated = 0;
+        self.ready_up = false;
+        self.enemy_tanks += 2;
+        self.enemy_soldiers += 3;
+        self.count_down.reset();
     }
 }
 
@@ -116,6 +127,7 @@ impl Default for CustomCursor {
 
 fn setup(mut my_assets: ResMut<MyAssets>, assets: Res<AssetServer>) {
     // TEXTURES
-    my_assets.select_border = assets.load("imgs/select_border.png");
-    my_assets.full_health = assets.load("imgs/full_health.png");
+    my_assets.img_select_border = assets.load("imgs/select_border.png");
+    my_assets.img_full_health = assets.load("imgs/full_health.png");
+    my_assets.img_hud_btn = assets.load("imgs/hud_button.png");
 }
