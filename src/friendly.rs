@@ -6,7 +6,7 @@ use bevy_rapier3d::{
 
 use crate::{
     resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, CurrentAction, Destination, Enemy, Friendly, Range, Selected, Speed, Target, Unit,
+    Action, CurrentAction, Destination, Enemy, Friendly, Range, Selected, Speed, Target,
     UnitAudioEv, UnitAudioOptions,
 };
 
