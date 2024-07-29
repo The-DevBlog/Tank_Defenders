@@ -82,7 +82,7 @@ fn build_soldier(
             my_assets.audio_rifle_fire.clone(),
             Timer::from_seconds(SOLDIER_FIRE_RATE, TimerMode::Repeating),
             assets.load("soldier_animations.glb#Scene0"),
-            Vec3::new(pos.x - 30.0, 1.0, pos.z + 20.0),
+            Vec3::new(pos.x - 30.0, 2.0, pos.z + 20.0),
         ),
         Selected(false),
         Soldier,

@@ -52,8 +52,8 @@ impl Default for RoundInfo {
     fn default() -> Self {
         RoundInfo {
             round: 1,
-            enemy_tanks: 0,
-            enemy_soldiers: 0,
+            enemy_tanks: 10,
+            enemy_soldiers: 50,
             enemies_defeated: 0,
             ready_up: false,
             count_down: Timer::from_seconds(5.0, TimerMode::Once),
