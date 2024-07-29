@@ -90,6 +90,12 @@ pub struct TankFactory;
 pub struct Barracks;
 
 #[derive(Component)]
+pub struct ReadyUpBtn;
+
+#[derive(Component)]
+pub struct ReadyUpTxt;
+
+#[derive(Component)]
 pub struct FireRate(pub Timer);
 
 #[derive(Component, Debug)]

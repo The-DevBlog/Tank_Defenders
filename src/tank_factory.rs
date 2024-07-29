@@ -112,7 +112,7 @@ fn build_tank(
 
     let select_border = (
         BillboardTextureBundle {
-            texture: BillboardTextureHandle(my_assets.select_border.clone()),
+            texture: BillboardTextureHandle(my_assets.img_select_border.clone()),
             ..default()
         },
         BorderSelect::new(15.0, 15.0),
