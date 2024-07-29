@@ -1,8 +1,7 @@
+use super::{MapBase, MAP_SIZE};
 use bevy::prelude::*;
 use bevy_rapier3d::geometry::Collider;
 use bevy_rts_camera::Ground;
-
-use crate::{MapBase, MAP_SIZE};
 
 // const MAP_SIZE: f32 = 100.0;
 const WALL_THICKNESS: f32 = 1.0;

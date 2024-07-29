@@ -1,9 +1,6 @@
+use crate::game::components::*;
+use crate::game::resources::*;
 use bevy::prelude::*;
-
-use crate::{
-    resources::{CustomCursor, GameCommands},
-    CurrentAction, Destination, Friendly, Selected, Target,
-};
 
 pub struct DebugPlugin;
 

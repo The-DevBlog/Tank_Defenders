@@ -1,13 +1,10 @@
+use super::*;
+use crate::game::components::*;
+use crate::game::events::*;
 use bevy::prelude::*;
 use bevy_mod_billboard::{BillboardTextureBundle, BillboardTextureHandle};
 use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider};
-
-use crate::{
-    resources::MyAssets, Barracks, BorderSelect, BuildSoldierEv, BuySoldierBtn, Friendly, Health,
-    HealthbarBundle, PurchaseUnitRequestEv, Selected, Soldier, UnitBundle, UnitType, MAP_SIZE,
-    SOLDIER_COST, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_SPEED,
-    SPEED_QUANTIFIER,
-};
+use resources::MyAssets;
 
 pub struct BarracksPlugin;
 

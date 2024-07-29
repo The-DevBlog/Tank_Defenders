@@ -1,14 +1,10 @@
+use crate::game::components::*;
+use crate::game::events::*;
 use bevy::prelude::*;
 
-use crate::{
-    Action, AttackAudioEv, AttackAudioOptions, CurrentAction, Damage, Destination,
-    EnemyDestroyedEv, FireRate, Health, InvokeDamage, Range, Reward, Soldier, Target,
-    UpdateBankBalanceEv,
-};
+pub struct TanksPlugin;
 
-pub struct SoldiersPlugin;
-
-impl Plugin for SoldiersPlugin {
+impl Plugin for TanksPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, attack);
     }
@@ -26,7 +22,7 @@ fn attack(
             &mut FireRate,
             &mut CurrentAction,
         ),
-        With<Soldier>,
+        With<Tank>,
     >,
     time: Res<Time>,
     mut health_q: Query<&mut Health>,
@@ -60,7 +56,7 @@ fn attack(
 
                         if fire_rate.0.elapsed().is_zero() {
                             // Trigger the damage event at the start of the timer
-                            cmds.trigger(AttackAudioEv(AttackAudioOptions::Soldier));
+                            cmds.trigger(AttackAudioEv(AttackAudioOptions::Tank));
                             cmds.trigger(InvokeDamage::new(dmg.0, target_ent));
                             health.current -= dmg.0;
                         }

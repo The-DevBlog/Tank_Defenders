@@ -1,13 +1,10 @@
+use crate::game::components::*;
+use crate::game::events::*;
+use crate::game::resources::*;
 use bevy::prelude::*;
 use bevy_rapier3d::{
     plugin::RapierContext,
     prelude::{ExternalImpulse, QueryFilter},
-};
-
-use crate::{
-    resources::{CursorState, CustomCursor, GameCommands, MouseCoords},
-    Action, CurrentAction, Destination, Enemy, Friendly, Range, Selected, Speed, Target,
-    UnitAudioEv, UnitAudioOptions,
 };
 
 pub struct FriendlyPlugin;

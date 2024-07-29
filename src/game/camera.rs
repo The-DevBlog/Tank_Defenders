@@ -1,7 +1,7 @@
 use bevy::{math::bounding::Aabb2d, prelude::*};
 use bevy_rts_camera::{RtsCamera, RtsCameraControls, RtsCameraPlugin};
 
-use crate::MAP_SIZE;
+use super::MAP_SIZE;
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {

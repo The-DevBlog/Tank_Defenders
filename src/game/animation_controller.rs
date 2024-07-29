@@ -1,6 +1,6 @@
 use bevy::{animation::animate_targets, prelude::*};
 
-use crate::{Action, CurrentAction};
+use super::{Action, CurrentAction};
 
 pub struct AnimationControllerPlugin;
 

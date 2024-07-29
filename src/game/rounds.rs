@@ -1,12 +1,8 @@
+use super::*;
+use crate::game::components::*;
+use crate::game::events::*;
+use crate::game::resources::*;
 use bevy::prelude::*;
-
-use crate::{
-    resources::{MyAssets, RoundInfo},
-    AdvanceRound, Barracks, Enemy, EnemyDestroyedEv, EnemySoldier, EnemyTank, HealthbarBundle,
-    ReadyUpBtn, ReadyUpTxt, RoundTxt, StartRound, UnitBundle, MAP_SIZE, SOLDIER_DMG,
-    SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_REWARD, SOLDIER_SPEED,
-    SPEED_QUANTIFIER, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_REWARD, TANK_SPEED,
-};
 
 pub struct RoundsPlugin;
 

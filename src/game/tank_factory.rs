@@ -1,12 +1,10 @@
+use super::*;
+use crate::game::components::*;
+use crate::game::events::*;
+use crate::game::resources::*;
 use bevy::{audio::Volume, prelude::*};
 use bevy_mod_billboard::{BillboardTextureBundle, BillboardTextureHandle};
 use bevy_rapier3d::prelude::{Collider, RigidBody};
-
-use crate::{
-    resources::MyAssets, BorderSelect, BuildTankEv, BuyTankBtn, Friendly, Health, HealthbarBundle,
-    PurchaseUnitRequestEv, Selected, Tank, TankFactory, UnitBundle, UnitType, MAP_SIZE,
-    SPEED_QUANTIFIER, TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
-};
 
 pub struct TankFactoryPlugin;
 

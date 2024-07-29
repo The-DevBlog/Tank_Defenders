@@ -1,7 +1,6 @@
+use crate::game::components::*;
 use bevy::prelude::*;
 use bevy_mod_billboard::BillboardMeshHandle;
-
-use crate::{BorderSelect, Friendly, Selected};
 
 pub struct UtilsPlugin;
 

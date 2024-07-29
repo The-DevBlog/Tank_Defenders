@@ -1,9 +1,6 @@
+use crate::game::components::*;
+use crate::game::events::*;
 use bevy::prelude::*;
-
-use crate::{
-    Action, AttackAudioEv, AttackAudioOptions, Barracks, CurrentAction, Damage, Destination, Enemy,
-    EnemySoldier, EnemyTank, FireRate, Friendly, Health, InvokeDamage, Range, TankFactory, Target,
-};
 
 pub struct AiEnemyPlugin;
 

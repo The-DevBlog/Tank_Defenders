@@ -1,6 +1,5 @@
-use crate::{
-    resources::MyAssets, AttackAudioEv, AttackAudioOptions, UnitAudioEv, UnitAudioOptions,
-};
+use super::resources::MyAssets;
+use crate::game::events::*;
 use bevy::{audio::PlaybackMode, prelude::*};
 use rand::seq::SliceRandom;
 

@@ -1,12 +1,10 @@
+use super::friendly::set_unit_destination;
+use crate::game::components::*;
+use crate::game::events::*;
+use crate::game::resources::*;
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier3d::{pipeline::QueryFilter, plugin::RapierContext};
 use bevy_rts_camera::RtsCamera;
-
-use crate::{
-    friendly::set_unit_destination,
-    resources::{BoxCoords, CursorState, CustomCursor, GameCommands, MouseCoords},
-    Enemy, Friendly, MapBase, Selected, UnitAudioEv, UnitAudioOptions,
-};
 
 pub struct MousePlugin;
 

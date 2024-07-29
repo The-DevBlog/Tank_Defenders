@@ -1,10 +1,6 @@
+use crate::game::components::*;
+use crate::game::resources::*;
 use bevy::prelude::*;
-
-use crate::{
-    resources::{Bank, MyAssets},
-    BankBalanceTxt, Health, Healthbar, HealthbarBundle, Soldier, Tank,
-};
-
 pub struct EventsPlugin;
 
 impl Plugin for EventsPlugin {

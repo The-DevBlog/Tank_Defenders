@@ -1,4 +1,6 @@
-use crate::{resources::Bank, BankBalanceTxt, BuySoldierBtn, BuyTankBtn, SOLDIER_COST, TANK_COST};
+use super::*;
+use crate::game::components::*;
+use crate::game::resources::*;
 use bevy::prelude::*;
 
 pub struct HudPlugin;
