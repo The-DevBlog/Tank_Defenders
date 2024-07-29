@@ -2,6 +2,8 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
+use crate::STARTING_FUNDS;
+
 pub struct ResourcesPlugin;
 
 impl Plugin for ResourcesPlugin {
@@ -12,7 +14,7 @@ impl Plugin for ResourcesPlugin {
             .init_resource::<GameCommands>()
             .init_resource::<CustomCursor>()
             .init_resource::<MyAssets>()
-            .init_resource::<RoundInfo>()
+            .init_resource::<GameInfo>()
             .add_systems(Startup, setup);
     }
 }
@@ -34,41 +36,62 @@ pub struct Bank(pub i32);
 
 impl Default for Bank {
     fn default() -> Self {
-        Bank(1500)
+        Bank(STARTING_FUNDS)
+    }
+}
+
+impl Bank {
+    pub fn reset(&mut self) {
+        self.0 = STARTING_FUNDS;
     }
 }
 
 #[derive(Resource)]
-pub struct RoundInfo {
+pub struct GameInfo {
     pub round: i32,
     pub enemy_tanks: i32,
     pub enemy_soldiers: i32,
-    pub enemies_defeated: i32,
+    pub enemies_killed_round: i32,
+    pub enemies_killed_total: i32,
     pub ready_up: bool,
     pub count_down: Timer,
+    pub game_over: bool,
 }
 
-impl Default for RoundInfo {
+impl Default for GameInfo {
     fn default() -> Self {
-        RoundInfo {
+        GameInfo {
             round: 1,
-            enemy_tanks: 10,
-            enemy_soldiers: 50,
-            enemies_defeated: 0,
+            enemy_tanks: 0,
+            enemy_soldiers: 0,
+            enemies_killed_round: 0,
+            enemies_killed_total: 0,
             ready_up: false,
             count_down: Timer::from_seconds(5.0, TimerMode::Once),
+            game_over: false,
         }
     }
 }
 
-impl RoundInfo {
+impl GameInfo {
     pub fn new_round(&mut self) {
         self.round += 1;
-        self.enemies_defeated = 0;
+        self.enemies_killed_round = 0;
         self.ready_up = false;
         self.enemy_tanks += 2;
         self.enemy_soldiers += 3;
         self.count_down.reset();
+    }
+
+    pub fn restart(&mut self) {
+        self.ready_up = false;
+        self.enemies_killed_round = 0;
+        self.enemies_killed_total = 0;
+        self.round = 1;
+        self.enemy_tanks = 0;
+        self.enemy_soldiers = 0;
+        self.count_down.reset();
+        self.game_over = false;
     }
 }
 
