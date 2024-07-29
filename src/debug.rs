@@ -21,10 +21,10 @@ fn print_friendly_info(
     for (_action, _target, _selected, _destination) in friendly_q.iter() {
         // println!("Action: {:?}", _action.0);
         // println!("Target: {:?}", _target.0);
-        println!(
-            "Destination: {:?} || Target: {:?}",
-            _destination.0, _target.0
-        );
+        // println!(
+        //     "Destination: {:?} || Target: {:?}",
+        //     _destination.0, _target.0
+        // );
         // println!("Selected: {}", _selected.0);
         // println!("Selected: {}", _selected.0);
     }

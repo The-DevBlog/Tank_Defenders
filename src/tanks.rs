@@ -1,9 +1,8 @@
 use bevy::prelude::*;
 
 use crate::{
-    Action, AttackAudioEv, AttackAudioOptions, CurrentAction, Damage, Destination,
-    EnemyDestroyedEv, FireRate, Health, InvokeDamage, Range, Reward, Tank, Target,
-    UpdateBankBalanceEv,
+    Action, AttackAudioEv, AttackAudioOptions, CurrentAction, Damage, Destination, EnemyKilledEv,
+    FireRate, Health, InvokeDamage, Range, Reward, Tank, Target, UpdateBankBalanceEv,
 };
 
 pub struct TanksPlugin;
@@ -54,7 +53,7 @@ fn attack(
                             }
 
                             cmds.entity(target_ent).despawn_recursive();
-                            cmds.trigger(EnemyDestroyedEv);
+                            cmds.trigger(EnemyKilledEv);
                             return;
                         }
 

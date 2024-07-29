@@ -16,6 +16,12 @@ impl Plugin for EventsPlugin {
 }
 
 #[derive(Event)]
+pub struct GameOverEv;
+
+#[derive(Event)]
+pub struct RestartGameEv;
+
+#[derive(Event)]
 pub struct AttackAudioEv(pub AttackAudioOptions);
 
 #[derive(Debug)]
@@ -49,7 +55,7 @@ impl UpdateBankBalanceEv {
 pub struct StartRound;
 
 #[derive(Event)]
-pub struct EnemyDestroyedEv;
+pub struct EnemyKilledEv;
 
 #[derive(Event)]
 pub struct AdvanceRound;

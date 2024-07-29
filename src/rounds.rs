@@ -1,27 +1,33 @@
 use bevy::prelude::*;
 
-use crate::{
-    resources::{MyAssets, RoundInfo},
-    AdvanceRound, Barracks, Enemy, EnemyDestroyedEv, EnemySoldier, EnemyTank, HealthbarBundle,
-    ReadyUpBtn, ReadyUpTxt, RoundTxt, StartRound, UnitBundle, MAP_SIZE, SOLDIER_DMG,
-    SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_REWARD, SOLDIER_SPEED,
-    SPEED_QUANTIFIER, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_REWARD, TANK_SPEED,
-};
+use super::*;
+use crate::components::*;
+use crate::events::*;
+use crate::resources::*;
 
 pub struct RoundsPlugin;
 
 impl Plugin for RoundsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup)
-            .add_systems(Update, (ready_up_click, count_down_to_next_round))
+        app.add_systems(Startup, load)
+            .add_systems(
+                Update,
+                (ready_up_click, count_down_to_next_round, restart_game_click),
+            )
+            .observe(setup)
             .observe(spawn_tanks)
             .observe(spawn_soldiers)
             .observe(advance_round)
-            .observe(reset_round);
+            .observe(reset_round)
+            .observe(game_over);
     }
 }
 
-fn setup(mut cmds: Commands) {
+fn load(mut cmds: Commands) {
+    cmds.trigger(RestartGameEv);
+}
+
+fn setup(_trigger: Trigger<RestartGameEv>, mut cmds: Commands) {
     let round_txt = (
         TextBundle {
             text: Text::from_section(
@@ -50,16 +56,17 @@ fn setup(mut cmds: Commands) {
 }
 
 fn advance_round(
-    _trigger: Trigger<EnemyDestroyedEv>,
-    mut round_info: ResMut<RoundInfo>,
+    _trigger: Trigger<EnemyKilledEv>,
+    mut round_info: ResMut<GameInfo>,
     mut round_txt_q: Query<&mut Text, With<RoundTxt>>,
     mut cmds: Commands,
 ) {
     println!("Enemy Destroyed");
-    round_info.enemies_defeated += 1;
+    round_info.enemies_killed_round += 1;
+    round_info.enemies_killed_total += 1;
 
     let total_enemies = round_info.enemy_soldiers + round_info.enemy_tanks;
-    if round_info.enemies_defeated >= total_enemies {
+    if round_info.enemies_killed_round >= total_enemies {
         // update round display
         if let Ok(mut round_txt) = round_txt_q.get_single_mut() {
             round_txt.sections[0].value = format!("ROUND {}", round_info.round);
@@ -123,12 +130,21 @@ fn spawn_tanks(
     my_assets: Res<MyAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     barracks_q: Query<(&Transform, Entity), With<Barracks>>,
-    round_info: Res<RoundInfo>,
+    tank_factory_q: Query<(&Transform, Entity), With<TankFactory>>,
+    round_info: Res<GameInfo>,
 ) {
-    let Ok((barracks_transform, barracks_ent)) = barracks_q.get_single() else {
-        return;
-    };
+    let mut target = None;
+    let mut target_destination = None;
 
+    if let Ok((tank_factory_transform, tank_factory_ent)) = tank_factory_q.get_single() {
+        target = Some(tank_factory_ent);
+        target_destination = Some(tank_factory_transform.translation);
+    }
+
+    if let Ok((barracks_transform, barracks_ent)) = barracks_q.get_single() {
+        target = Some(barracks_ent);
+        target_destination = Some(barracks_transform.translation);
+    }
     let num_tanks = round_info.enemy_tanks as usize;
     let spacing = MAP_SIZE / (num_tanks as f32 + 1.0); // Calculate spacing between tanks
 
@@ -156,8 +172,8 @@ fn spawn_tanks(
             Enemy,
         );
 
-        tank.0.destination.0 = Some(barracks_transform.translation);
-        tank.0.target.0 = Some(barracks_ent);
+        tank.0.destination.0 = Some(target_destination.unwrap());
+        tank.0.target.0 = Some(target.unwrap());
 
         let healthbar_height = 1.5;
         let healthbar_width = 10.0;
@@ -187,11 +203,21 @@ fn spawn_soldiers(
     my_assets: Res<MyAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     barracks_q: Query<(&Transform, Entity), With<Barracks>>,
-    round_info: Res<RoundInfo>,
+    tank_factory_q: Query<(&Transform, Entity), With<TankFactory>>,
+    round_info: Res<GameInfo>,
 ) {
-    let Ok((barracks_transform, barracks_ent)) = barracks_q.get_single() else {
-        return;
-    };
+    let mut target = None;
+    let mut target_destination = None;
+
+    if let Ok((tank_factory_transform, tank_factory_ent)) = tank_factory_q.get_single() {
+        target = Some(tank_factory_ent);
+        target_destination = Some(tank_factory_transform.translation);
+    }
+
+    if let Ok((barracks_transform, barracks_ent)) = barracks_q.get_single() {
+        target = Some(barracks_ent);
+        target_destination = Some(barracks_transform.translation);
+    }
 
     let num_soldiers = round_info.enemy_soldiers as usize;
     let spacing = MAP_SIZE / (num_soldiers as f32 + 1.0); // Calculate spacing between tanks
@@ -220,8 +246,8 @@ fn spawn_soldiers(
             Enemy,
         );
 
-        soldier.0.destination.0 = Some(barracks_transform.translation);
-        soldier.0.target.0 = Some(barracks_ent);
+        soldier.0.destination.0 = Some(target_destination.unwrap());
+        soldier.0.target.0 = Some(target.unwrap());
 
         let healthbar_height = 1.0;
         let healthbar_width = 5.0;
@@ -246,7 +272,7 @@ fn spawn_soldiers(
 
 fn ready_up_click(
     mut interact_q: Query<&Interaction, (Changed<Interaction>, With<ReadyUpBtn>)>,
-    mut round_info: ResMut<RoundInfo>,
+    mut round_info: ResMut<GameInfo>,
 ) {
     for interaction in &mut interact_q {
         match *interaction {
@@ -257,7 +283,7 @@ fn ready_up_click(
 }
 
 fn count_down_to_next_round(
-    mut round_info: ResMut<RoundInfo>,
+    mut round_info: ResMut<GameInfo>,
     mut count_down_txt_q: Query<&mut Text, With<ReadyUpTxt>>,
     mut count_down_container_q: Query<Entity, With<ReadyUpBtn>>,
     time: Res<Time>,
@@ -282,3 +308,143 @@ fn count_down_to_next_round(
         round_info.count_down.tick(time.delta());
     }
 }
+
+fn game_over(
+    _trigger: Trigger<GameOverEv>,
+    mut game_info: ResMut<GameInfo>,
+    my_assets: Res<MyAssets>,
+    mut cmds: Commands,
+) {
+    game_info.game_over = true;
+
+    let game_over_container = (
+        ImageBundle {
+            image: UiImage::new(my_assets.img_hud_btn.clone()),
+            style: Style {
+                flex_direction: FlexDirection::Column,
+                width: Val::Percent(50.0),
+                height: Val::Percent(50.0),
+                margin: UiRect::all(Val::Auto),
+                justify_content: JustifyContent::SpaceEvenly,
+                ..default()
+            },
+            ..default()
+        },
+        RestartGameContainer,
+        Name::new("Game Over Container"),
+    );
+
+    let rounds_lasted_txt = (
+        TextBundle {
+            text: Text::from_section(
+                format!("ROUNDS LASTED: {}", game_info.round),
+                TextStyle {
+                    color: Color::srgb(0.0, 0.0, 0.0),
+                    font_size: 50.0,
+                    ..default()
+                },
+            ),
+            style: Style {
+                margin: UiRect::horizontal(Val::Auto),
+                ..default()
+            },
+            ..default()
+        },
+        Name::new("Rounds Lasted Text"),
+    );
+
+    let enemies_defeated_txt = (
+        TextBundle {
+            text: Text::from_section(
+                format!("Enemies Defeated: {}", game_info.enemies_killed_total),
+                TextStyle {
+                    color: Color::srgb(0.0, 0.0, 0.0),
+                    font_size: 50.0,
+                    ..default()
+                },
+            ),
+            style: Style {
+                margin: UiRect::horizontal(Val::Auto),
+                ..default()
+            },
+            ..default()
+        },
+        Name::new("Enemies Defeated Text"),
+    );
+
+    let restart_game_btn = (
+        ButtonBundle {
+            style: Style {
+                // width: Val::Percent(80.0),
+                // height: Val::Percent(31.0),
+                margin: UiRect::new(Val::Percent(14.0), Val::Auto, Val::Percent(10.0), Val::Auto),
+                justify_content: JustifyContent::SpaceEvenly,
+                ..default()
+            },
+            ..default()
+        },
+        RestartGameBtn,
+        Name::new("Restart Game Button"),
+    );
+
+    let restart_game_txt = (
+        TextBundle {
+            text: Text::from_section(
+                "RESTART",
+                TextStyle {
+                    color: Color::srgb(0.0, 0.0, 0.0),
+                    font_size: 50.0,
+                    ..default()
+                },
+            ),
+            style: Style {
+                margin: UiRect::horizontal(Val::Auto),
+                ..default()
+            },
+            ..default()
+        },
+        Name::new("Restart Game Text"),
+    );
+
+    cmds.spawn(game_over_container).with_children(|parent| {
+        parent.spawn(rounds_lasted_txt);
+        parent.spawn(enemies_defeated_txt);
+        parent.spawn(restart_game_btn).with_children(|parent| {
+            parent.spawn(restart_game_txt);
+        });
+    });
+}
+
+fn restart_game_click(
+    mut cmds: Commands,
+    mut interact_q: Query<&Interaction, (Changed<Interaction>, With<RestartGameBtn>)>,
+    mut game_info: ResMut<GameInfo>,
+    mut bank: ResMut<Bank>,
+    restart_game_menu_q: Query<Entity, With<RestartGameContainer>>,
+    unit_q: Query<Entity, With<Unit>>,
+) {
+    for interaction in &mut interact_q {
+        match *interaction {
+            Interaction::Pressed => {
+                for restart_container in restart_game_menu_q.iter() {
+                    cmds.entity(restart_container).despawn_recursive();
+                }
+
+                for unit_ent in unit_q.iter() {
+                    cmds.entity(unit_ent).despawn_recursive();
+                }
+
+                bank.reset();
+                game_info.restart();
+                cmds.trigger(RestartGameEv)
+            }
+            _ => (),
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct RestartGameBtn;
+
+#[derive(Component)]
+pub struct RestartGameContainer;

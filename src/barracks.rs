@@ -4,22 +4,27 @@ use bevy_rapier3d::{dynamics::RigidBody, geometry::Collider};
 
 use crate::{
     resources::MyAssets, Barracks, BorderSelect, BuildSoldierEv, BuySoldierBtn, Friendly, Health,
-    HealthbarBundle, PurchaseUnitRequestEv, Selected, Soldier, UnitBundle, UnitType, MAP_SIZE,
-    SOLDIER_COST, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE, SOLDIER_SPEED,
-    SPEED_QUANTIFIER,
+    HealthbarBundle, PurchaseUnitRequestEv, RestartGameEv, Selected, Soldier, UnitBundle, UnitType,
+    MAP_SIZE, SOLDIER_COST, SOLDIER_DMG, SOLDIER_FIRE_RATE, SOLDIER_HEALTH, SOLDIER_RANGE,
+    SOLDIER_SPEED, SPEED_QUANTIFIER,
 };
 
 pub struct BarracksPlugin;
 
 impl Plugin for BarracksPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_barracks)
-            .add_systems(Update, buy_soldier_click)
+        app.add_systems(Update, buy_soldier_click)
+            .observe(spawn_barracks)
             .observe(build_soldier);
     }
 }
 
-fn spawn_barracks(mut cmds: Commands, assets: Res<AssetServer>, mut meshes: ResMut<Assets<Mesh>>) {
+fn spawn_barracks(
+    _trigger: Trigger<RestartGameEv>,
+    mut cmds: Commands,
+    assets: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
     let barracks = (
         SceneBundle {
             scene: assets.load("barracks.glb#Scene0"),

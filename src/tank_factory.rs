@@ -4,21 +4,23 @@ use bevy_rapier3d::prelude::{Collider, RigidBody};
 
 use crate::{
     resources::MyAssets, BorderSelect, BuildTankEv, BuyTankBtn, Friendly, Health, HealthbarBundle,
-    PurchaseUnitRequestEv, Selected, Tank, TankFactory, UnitBundle, UnitType, MAP_SIZE,
-    SPEED_QUANTIFIER, TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE, TANK_SPEED,
+    PurchaseUnitRequestEv, RestartGameEv, Selected, Tank, TankFactory, UnitBundle, UnitType,
+    MAP_SIZE, SPEED_QUANTIFIER, TANK_COST, TANK_DMG, TANK_FIRE_RATE, TANK_HEALTH, TANK_RANGE,
+    TANK_SPEED,
 };
 
 pub struct TankFactoryPlugin;
 
 impl Plugin for TankFactoryPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_tank_factory)
-            .add_systems(Update, buy_tank_click)
+        app.add_systems(Update, buy_tank_click)
+            .observe(spawn_tank_factory)
             .observe(build_tank);
     }
 }
 
 fn spawn_tank_factory(
+    _trigger: Trigger<RestartGameEv>,
     mut cmds: Commands,
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
