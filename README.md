@@ -7,7 +7,7 @@
 
 ## Description
 
-This is my entry for the 07/29 Bevy Game Jam #5. *Tank Defenders* is an endless wave RTS. Spend cash to build tanks and troops. Protect your base by destroying enemies and earning more cash. Each wave spawns more enemy tanks and troops. If the enemy manages to destroy both your barracks and tank factory, you lose!
+This is my entry for the 07/29 Bevy Game Jam #5. Game Jam theme is *cycles*. ***Tank Defenders*** is an endless wave RTS. Spend cash to build tanks and troops. Protect your base by destroying enemies and earning more cash. Each wave spawns more enemy tanks and troops. If the enemy manages to destroy both your barracks and tank factory, you lose!
 
 
 ![demo 3](assets/demo/demo_3.png)
