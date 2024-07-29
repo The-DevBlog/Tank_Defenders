@@ -129,17 +129,14 @@ fn spawn_tanks(
         return;
     };
 
-    // Define the center of the arc and the radius
-    let arc_center = barracks_transform.translation;
-    let radius = MAP_SIZE - 50.0;
-    let arc_angle = std::f32::consts::PI / 4.0; // 45 degrees arc
+    let num_tanks = round_info.enemy_tanks as usize;
+    let spacing = MAP_SIZE / (num_tanks as f32 + 1.0); // Calculate spacing between tanks
 
-    for i in 0..round_info.enemy_tanks {
-        let angle =
-            arc_angle * (i as f32 / (round_info.enemy_tanks as f32 - 1.0)) - arc_angle / 2.0;
-        let x = arc_center.x - MAP_SIZE + 100.0;
-        let z = arc_center.z + radius * angle.sin();
-        let initial_position = Vec3::new(x, arc_center.y, z);
+    for i in 0..num_tanks {
+        // Calculate the x and z positions for the tank
+        let x = -MAP_SIZE / 2.0 + 20.0; // Fixed x position on the left side of the map
+        let z = -MAP_SIZE / 2.0 + spacing * (i as f32 + 1.0); // Spaced evenly along the z-axis
+        let initial_position = Vec3::new(x, 2.0, z);
 
         let mut tank = (
             UnitBundle::new(
@@ -196,20 +193,14 @@ fn spawn_soldiers(
         return;
     };
 
-    let arc_center = barracks_transform.translation;
-    let radius = MAP_SIZE - 30.0;
-    let arc_angle = std::f32::consts::PI / 4.0; // 45 degrees arc
-    let soldiers_per_row = 40;
-    let row_spacing = 10.0; // Adjust the spacing between rows as needed
+    let num_soldiers = round_info.enemy_soldiers as usize;
+    let spacing = MAP_SIZE / (num_soldiers as f32 + 1.0); // Calculate spacing between tanks
 
-    for i in 0..round_info.enemy_soldiers {
-        let row = i / soldiers_per_row;
-        let col = i % soldiers_per_row;
-        let angle = arc_angle * (col as f32 / (soldiers_per_row as f32 - 1.0)) - arc_angle / 2.0;
-
-        let x = arc_center.x - MAP_SIZE + 150.0 - row as f32 * row_spacing;
-        let z = arc_center.z + radius * angle.sin();
-        let initial_position = Vec3::new(x, arc_center.y, z);
+    for i in 0..num_soldiers {
+        // Calculate the x and z positions for the tank
+        let x = -MAP_SIZE / 2.0 + 50.0; // Fixed x position on the left side of the map
+        let z = -MAP_SIZE / 2.0 + spacing * (i as f32 + 1.0); // Spaced evenly along the z-axis
+        let initial_position = Vec3::new(x, 2.0, z);
 
         let mut soldier = (
             UnitBundle::new(
