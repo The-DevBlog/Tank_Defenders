@@ -21,6 +21,7 @@ fn spawn_camera(mut cmds: Commands) {
             ..default()
         },
         RtsCameraControls {
+            edge_pan_width: 0.01,
             key_left: KeyCode::KeyA,
             key_right: KeyCode::KeyD,
             key_up: KeyCode::KeyW,
