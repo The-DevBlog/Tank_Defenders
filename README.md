@@ -5,6 +5,8 @@
 
 ---
 
+Play it on [itch.io!](https://thedevblog.itch.io/tank-defenders)
+
 ## Description
 
 This is my entry for the 07/29 Bevy Game Jam #5. Game Jam theme is *cycles*. ***Tank Defenders*** is an endless wave RTS. Spend cash to build tanks and troops. Protect your base by destroying enemies and earning more cash. Each wave spawns more enemy tanks and troops. If the enemy manages to destroy both your barracks and tank factory, you lose!
